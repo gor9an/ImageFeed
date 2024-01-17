@@ -7,12 +7,15 @@
 
 import UIKit
 
- final class ImagesListViewController: UIViewController {
+final class ImagesListViewController: UIViewController {
     
+    //MARK: - IBOutlets
     @IBOutlet private weak var tableView: UITableView!
     
+    //MARK: - Private Properties
     private let photosName: [String] = Array(0...19).map{"\($0)"}
     
+    // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         
