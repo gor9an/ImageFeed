@@ -7,18 +7,11 @@
 
 import UIKit
 
-class ImagesListViewController: UIViewController {
+ final class ImagesListViewController: UIViewController {
     
-    @IBOutlet private var tableView: UITableView!
+    @IBOutlet private weak var tableView: UITableView!
     
     private let photosName: [String] = Array(0...19).map{"\($0)"}
-    private lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        formatter.timeStyle = .none
-        formatter.locale = Locale(identifier: "ru_RUS")
-        return formatter
-    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,24 +20,8 @@ class ImagesListViewController: UIViewController {
     }
     
 }
-//MARK: - ImagesListViewController extensions
-extension ImagesListViewController {
-    func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
-        cell.cardImage.layer.cornerRadius = 16
-        cell.cardImage.layer.masksToBounds = true
-        
-        guard let cardImage = UIImage(named: photosName[indexPath.row]) else {
-            return
-        }
-        
-        cell.cardImage.image = cardImage
-        cell.dateTitle.text = dateFormatter.string(from: Date())
-        
-        let likeImage = indexPath.row % 2 == 0 ? UIImage(named: "FavoritesActive") : UIImage(named: "FavoritesNoActive")
-        cell.likeButton.imageView?.image = likeImage
-    }
-}
 
+//MARK: - UITableViewDelegate
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) { }
     
@@ -61,6 +38,7 @@ extension ImagesListViewController: UITableViewDelegate {
     }
 }
 
+//MARK: - UITableViewDataSource
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return photosName.count
@@ -73,7 +51,7 @@ extension ImagesListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        configCell(for: imageListCell, with: indexPath)
+        imageListCell.configCell(for: imageListCell, with: indexPath, with: photosName)
         
         return imageListCell
     }
