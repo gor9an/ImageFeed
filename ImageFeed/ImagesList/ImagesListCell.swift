@@ -7,12 +7,14 @@
 
 import UIKit
 final class ImagesListCell: UITableViewCell {
-
+    
+    //MARK: - IBOutlets
     @IBOutlet private weak var cardImage: UIImageView!
     @IBOutlet private weak var dateTitle: UILabel!
     @IBOutlet private weak var likeButton: UIButton!
     static let  reuseIdentifier = "ImagesListCell"
     
+    //MARK: - Private Properties
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
@@ -21,6 +23,7 @@ final class ImagesListCell: UITableViewCell {
         return formatter
     }()
     
+    //MARK: - Public Function
     func configCell(for cell: ImagesListCell, with indexPath: IndexPath, with photosName: [String]) {
         cell.cardImage.layer.cornerRadius = 16
         cell.cardImage.layer.masksToBounds = true
@@ -34,9 +37,5 @@ final class ImagesListCell: UITableViewCell {
         
         let likeImage = indexPath.row % 2 == 0 ? UIImage(named: "FavoritesActive") : UIImage(named: "FavoritesNoActive")
         cell.likeButton.imageView?.image = likeImage
-        
-        cell.selectionStyle = .none
     }
-
-    
 }

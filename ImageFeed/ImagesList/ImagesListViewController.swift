@@ -7,12 +7,15 @@
 
 import UIKit
 
- final class ImagesListViewController: UIViewController {
+final class ImagesListViewController: UIViewController {
     
+    //MARK: - IBOutlets
     @IBOutlet private weak var tableView: UITableView!
     
+    //MARK: - Private Properties
     private let photosName: [String] = Array(0...19).map{"\($0)"}
     
+    // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -23,7 +26,9 @@ import UIKit
 
 //MARK: - UITableViewDelegate
 extension ImagesListViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) { }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         guard let cardImage = UIImage(named: photosName[indexPath.row]) else {
