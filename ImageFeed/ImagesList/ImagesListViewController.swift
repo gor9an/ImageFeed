@@ -13,6 +13,14 @@ final class ImagesListViewController: UIViewController {
     @IBOutlet private weak var tableView: UITableView!
     
     //MARK: - Private Properties
+    private lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        formatter.locale = Locale(identifier: "ru_RUS")
+        return formatter
+    }()
+    
     private let photosName: [String] = Array(0...19).map{"\($0)"}
     
     // MARK: - View Life Cycles
@@ -51,12 +59,14 @@ extension ImagesListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ImagesListCell.reuseIdentifier, for: indexPath)
-        
         guard let imageListCell = cell as? ImagesListCell else {
             return UITableViewCell()
         }
+        let image = UIImage(named: photosName[indexPath.row])
+        let date = dateFormatter.string(from: Date())
+        let isLiked = indexPath.row % 2 == 0
         
-        imageListCell.configCell(for: imageListCell, with: indexPath, with: photosName)
+        imageListCell.configCell(image: image, date: date, isLiked: isLiked)
         
         return imageListCell
     }
