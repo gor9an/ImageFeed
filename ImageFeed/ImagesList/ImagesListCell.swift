@@ -37,9 +37,5 @@ final class ImagesListCell: UITableViewCell {
         
         let likeImage = indexPath.row % 2 == 0 ? UIImage(named: "FavoritesActive") : UIImage(named: "FavoritesNoActive")
         cell.likeButton.imageView?.image = likeImage
-        
-        cell.selectionStyle = .none
     }
-    
-    
 }
