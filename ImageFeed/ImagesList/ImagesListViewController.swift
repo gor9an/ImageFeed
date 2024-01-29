@@ -28,6 +28,7 @@ final class ImagesListViewController: UIViewController {
         super.viewDidLoad()
         
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
+        tableView.register(UINib(nibName: "ImagesListCell", bundle: nil), forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
     }
     
 }
@@ -42,6 +43,7 @@ extension ImagesListViewController: UITableViewDelegate {
         guard let cardImage = UIImage(named: photosName[indexPath.row]) else {
             return 0
         }
+        
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
         let imageWidth = cardImage.size.width
