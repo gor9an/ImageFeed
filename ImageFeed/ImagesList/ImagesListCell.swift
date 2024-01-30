@@ -18,6 +18,8 @@ final class ImagesListCell: UITableViewCell {
 //MARK: - ImagesListCell extension
 extension ImagesListCell {
     func configCell(image: UIImage?, date: String, isLiked: Bool) {
+        self.selectionStyle = .none
+        
         cardImage.layer.cornerRadius = 16
         cardImage.layer.masksToBounds = true
         

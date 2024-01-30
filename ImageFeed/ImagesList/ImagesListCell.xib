@@ -20,6 +20,18 @@
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="Nv0-xb-RgV">
                         <rect key="frame" x="16" y="4" width="361" height="130"/>
                     </imageView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="G1K-wy-2On">
+                        <rect key="frame" x="16" y="108" width="361" height="30"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.11977128793072227" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="30" id="69d-n6-nl4"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="0"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </view>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ahs-2C-kQR">
                         <rect key="frame" x="329" y="11" width="44" height="44"/>
                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
@@ -33,9 +45,12 @@
                     </label>
                 </subviews>
                 <constraints>
+                    <constraint firstAttribute="trailing" secondItem="G1K-wy-2On" secondAttribute="trailing" constant="16" id="FOy-un-8ka"/>
+                    <constraint firstAttribute="bottom" secondItem="G1K-wy-2On" secondAttribute="bottom" id="JDD-4K-hKW"/>
                     <constraint firstItem="hhZ-vn-iUn" firstAttribute="bottom" secondItem="Nv0-xb-RgV" secondAttribute="bottom" constant="-8" id="LuW-j1-Yeg"/>
                     <constraint firstItem="hhZ-vn-iUn" firstAttribute="leading" secondItem="Nv0-xb-RgV" secondAttribute="leading" constant="8" id="PMT-BL-Ebe"/>
                     <constraint firstItem="Nv0-xb-RgV" firstAttribute="leading" secondItem="UEp-fG-Bcp" secondAttribute="leading" constant="16" id="SVA-9b-ycm"/>
+                    <constraint firstItem="G1K-wy-2On" firstAttribute="leading" secondItem="UEp-fG-Bcp" secondAttribute="leading" constant="16" id="T8t-zy-PTG"/>
                     <constraint firstAttribute="trailingMargin" secondItem="ahs-2C-kQR" secondAttribute="trailing" id="fX7-F0-keH"/>
                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="hhZ-vn-iUn" secondAttribute="trailing" id="jUQ-Qu-4yh"/>
                     <constraint firstItem="Nv0-xb-RgV" firstAttribute="top" secondItem="UEp-fG-Bcp" secondAttribute="top" constant="4" id="luY-9y-eJ3"/>
@@ -50,7 +65,7 @@
                 <outlet property="dateTitle" destination="hhZ-vn-iUn" id="iO7-wY-gKx"/>
                 <outlet property="likeButton" destination="ahs-2C-kQR" id="vuu-v6-IrY"/>
             </connections>
-            <point key="canvasLocation" x="108" y="42"/>
+            <point key="canvasLocation" x="117" y="43"/>
         </tableViewCell>
     </objects>
     <resources>
