@@ -20,8 +20,19 @@ final class ImagesListViewController: UIViewController {
         formatter.locale = Locale(identifier: "ru_RUS")
         return formatter
     }()
-    
     private let photosName: [String] = Array(0...19).map{"\($0)"}
+    private let showSingleImage = "ShowSingleImage"
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == showSingleImage {
+            let viewController = segue.destination as! SingleImageViewController
+            let indexPath = sender as! IndexPath
+            let image = UIImage(named: photosName[indexPath.row])
+            viewController.image = image
+        } else {
+            super.prepare(for: segue, sender: sender)
+        }
+    }
     
     // MARK: - View Life Cycles
     override func viewDidLoad() {
@@ -36,11 +47,13 @@ final class ImagesListViewController: UIViewController {
 //MARK: - UITableViewDelegate
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        guard let newViewController = storyboard.instantiateViewController(withIdentifier: "SingleImageViewController") as? SingleImageViewController else {
-            return
-        }
-        navigationController?.pushViewController(newViewController, animated: true)
+        performSegue(withIdentifier: showSingleImage, sender: indexPath)
+        
+//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//        guard let newViewController = storyboard.instantiateViewController(withIdentifier: "SingleImageViewController") as? SingleImageViewController else {
+//            return
+//        }
+//        navigationController?.pushViewController(newViewController, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

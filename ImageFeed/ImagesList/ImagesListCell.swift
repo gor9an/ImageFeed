@@ -7,7 +7,6 @@
 
 import UIKit
 final class ImagesListCell: UITableViewCell {
-    
     //MARK: - IBOutlets
     @IBOutlet private weak var cardImage: UIImageView!
     @IBOutlet private weak var dateTitle: UILabel!

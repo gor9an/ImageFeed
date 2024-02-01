@@ -22,6 +22,6 @@ final class ProfileViewController: UIViewController {
     }
     
 
-    @IBAction func exitButtonClick(_ sender: Any) {
+    @IBAction func didTapExitButton(_ sender: Any) {
     }
 }
