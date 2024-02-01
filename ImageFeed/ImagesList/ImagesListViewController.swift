@@ -48,12 +48,6 @@ final class ImagesListViewController: UIViewController {
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: showSingleImage, sender: indexPath)
-        
-//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//        guard let newViewController = storyboard.instantiateViewController(withIdentifier: "SingleImageViewController") as? SingleImageViewController else {
-//            return
-//        }
-//        navigationController?.pushViewController(newViewController, animated: true)
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
