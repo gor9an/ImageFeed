@@ -45,6 +45,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B09544E42B74D23B00D8BBA5 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				B05933002B6584AB006F838B /* ProfileViewController.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		B09544E52B74D24B00D8BBA5 /* SingleImage */ = {
+			isa = PBXGroup;
+			children = (
+				B05933022B6967CF006F838B /* SingleImageViewController.swift */,
+			);
+			path = SingleImage;
+			sourceTree = "<group>";
+		};
 		B0A0CE562B488B8100CD84B3 /* ImagesList */ = {
 			isa = PBXGroup;
 			children = (
@@ -77,8 +93,8 @@
 				B0DCA0EC2B33DD13008906A7 /* AppDelegate.swift */,
 				B0DCA0EE2B33DD13008906A7 /* SceneDelegate.swift */,
 				B0A0CE562B488B8100CD84B3 /* ImagesList */,
-				B05933002B6584AB006F838B /* ProfileViewController.swift */,
-				B05933022B6967CF006F838B /* SingleImageViewController.swift */,
+				B09544E42B74D23B00D8BBA5 /* Profile */,
+				B09544E52B74D24B00D8BBA5 /* SingleImage */,
 				B0DCA0F52B33DD16008906A7 /* Assets.xcassets */,
 				B0DCA0F22B33DD13008906A7 /* Main.storyboard */,
 				B0DCA0F72B33DD16008906A7 /* LaunchScreen.storyboard */,
