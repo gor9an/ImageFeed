@@ -17,17 +17,18 @@ final class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .ypBlack
         let image = UIImage(named: "mockProfilePhoto")
         let name = "Екатерина Новикова"
         let nickname = "@ekaterina_nov"
         let description = "Hello, world!"
         
-        photoImageViewConfigure(with: image!)
-        labelsConfigure(name: name, nickname: nickname, description: description)
-        exitButtonConfigure()
+        configurePhotoImageView(with: image!)
+        configureLabels(name: name, nickname: nickname, description: description)
+        configureExitButton()
     }
 // MARK: - Private Function
-    private func photoImageViewConfigure(with image: UIImage) {
+    private func configurePhotoImageView(with image: UIImage) {
         photoImageView.image = image
         photoImageView.layer.cornerRadius = 35
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -41,7 +42,7 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    private func labelsConfigure(name: String, nickname: String, description: String) {
+    private func configureLabels(name: String, nickname: String, description: String) {
         nameLabel = UILabel()
         nicknameLabel = UILabel()
         descriptionLabel = UILabel()
@@ -69,6 +70,7 @@ final class ProfileViewController: UIViewController {
         descriptionLabel.text = description
         descriptionLabel.textColor = .ypWhite
         descriptionLabel.font = .systemFont(ofSize: 13)
+        descriptionLabel.numberOfLines = 0
 
         
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -79,12 +81,12 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    private func exitButtonConfigure() {
-        var exitButton = UIButton.systemButton(
+    private func configureExitButton() {
+        let exitButton = UIButton.systemButton(
             with: UIImage(systemName: "ipad.and.arrow.forward")!,
             target: self,
             action: #selector(Self.didTapExitButton))
-        exitButton.tintColor = .red
+        exitButton.tintColor = .ypRed
         exitButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(exitButton)
         

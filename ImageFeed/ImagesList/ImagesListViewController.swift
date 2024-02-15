@@ -15,8 +15,7 @@ final class ImagesListViewController: UIViewController {
     //MARK: - Private Properties
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        formatter.timeStyle = .none
+        formatter.dateFormat = "dd MMMM yyyy"
         formatter.locale = Locale(identifier: "ru_RUS")
         return formatter
     }()
@@ -24,14 +23,14 @@ final class ImagesListViewController: UIViewController {
     private let showSingleImage = "ShowSingleImage"
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showSingleImage {
-            let viewController = segue.destination as! SingleImageViewController
-            let indexPath = sender as! IndexPath
-            let image = UIImage(named: photosName[indexPath.row])
-            viewController.image = image
-        } else {
+        guard segue.identifier == showSingleImage,
+              let viewController = segue.destination as? SingleImageViewController,
+              let indexPath = sender as? IndexPath else {
             super.prepare(for: segue, sender: sender)
+            return
         }
+        let image = UIImage(named: photosName[indexPath.row])
+        viewController.image = image
     }
     
     // MARK: - View Life Cycles

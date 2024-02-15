@@ -25,10 +25,10 @@ final class SingleImageViewController: UIViewController {
         super.viewDidLoad()
         scrollView.delegate = self
         imageView.image = image
-        rescaleAndCenterImageInScrollView(image: image)
-        
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
+        
+        rescaleAndCenterImageInScrollView(image: image)
     }
     
     @IBAction func didTapBackButton(_ sender: Any) {
