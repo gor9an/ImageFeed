@@ -7,16 +7,17 @@
 
 import UIKit
 
-class AuthViewController: UIViewController {
+final class AuthViewController: UIViewController {
+    
     private var imageView: UIImageView?
     private let showWebView = "ShowWebView"
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureView()
     }
     
-
+    
     private func configureView() {
         imageView = UIImageView(image: UIImage(named: "Logo_of_Unsplash"))
         let loginButton = UIButton()
@@ -31,7 +32,7 @@ class AuthViewController: UIViewController {
         view.addSubview(imageView)
         view.addSubview(loginButton)
         view.backgroundColor = .ypBlack
-
+        
         loginButton.setTitle("Войти", for: .normal)
         loginButton.setTitleColor(.ypBlack, for: .normal)
         loginButton.titleLabel?.font = .boldSystemFont(ofSize: 17)
@@ -48,12 +49,35 @@ class AuthViewController: UIViewController {
             loginButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             loginButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -90),
             loginButton.heightAnchor.constraint(equalToConstant: 48)
-
+            
         ])
     }
     
-    @objc 
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == showWebView {
+            guard
+                let webViewViewController = segue.destination as? WebViewViewController
+            else { fatalError("Failed to prepare for \(showWebView)") }
+            webViewViewController.delegate = self
+        } else {
+            super.prepare(for: segue, sender: sender)
+        }
+        
+    }
+    
+    @objc
     private func didTapLoginButton() {
         performSegue(withIdentifier: showWebView, sender: nil)
+    }
+}
+
+//    MARK: - WebViewViewControllerDelegate
+extension AuthViewController: WebViewViewControllerDelegate {
+    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
+        
+    }
+    
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
+        dismiss(animated: true)
     }
 }
