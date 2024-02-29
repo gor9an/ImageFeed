@@ -34,8 +34,31 @@ final class OAuth2Service {
         return request
     }
     
-    func fetchOAuthToken(code: String) {
+    func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
         let request = makeOAuthTokenRequest(code: code)
+        let task = URLSession.shared.data(for: request, completion: { result in
+            switch result {
+            case .success(let data):
+                do { 
+                    let decoder = JSONDecoder()
+                    let response = try decoder.decode(OAuthTokenResponseBody.self, from: data)
+                    
+                    completion(.success(response.access_token))
+                } catch {
+                    print(error)
+                    
+                    completion(.failure(error))
+                    
+                }
+                
+            case .failure(let error):
+                print(error)
+                
+                completion(.failure(error))
+            }
+        })
+        
+        task.resume()
         
     }
 }

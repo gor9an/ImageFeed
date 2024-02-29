@@ -19,9 +19,9 @@ protocol WebViewViewControllerDelegate: AnyObject {
 final class WebViewViewController: UIViewController {
     private var webView = WKWebView()
     private let progressView = UIProgressView()
-
+    
     weak var delegate: WebViewViewControllerDelegate?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureWebView()
@@ -67,7 +67,7 @@ final class WebViewViewController: UIViewController {
         }
     }
     
-//    MARK: - Private Functions
+    //    MARK: - Private Functions
     private func updateProgress() {
         progressView.progress = Float(webView.estimatedProgress)
         progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
@@ -141,3 +141,5 @@ extension WebViewViewController: WKNavigationDelegate {
         }
     }
 }
+
+

@@ -30,11 +30,18 @@ extension URLSession {
                 if 200..<300 ~= statusCode {
                     fulfillCompletionOnTheMainThread(.success(data))
                 } else {
+                    print(String(data: data, encoding: .utf8) ?? "")
+                    print(NetworkError.httpStatusCode(statusCode)) //status code out of 200...300
+                    
                     fulfillCompletionOnTheMainThread(.failure(NetworkError.httpStatusCode(statusCode)))
                 }
             } else if let error {
+                print(NetworkError.urlRequestError(error)) //url request error
+                
                 fulfillCompletionOnTheMainThread(.failure(NetworkError.urlRequestError(error)))
             } else {
+                print(NetworkError.urlSessionError) //url session error
+                
                 fulfillCompletionOnTheMainThread(.failure(NetworkError.urlSessionError))
             }
         }

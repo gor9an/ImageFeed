@@ -7,10 +7,17 @@
 
 import UIKit
 
+protocol AuthViewControllerDelegate: AnyObject {
+    func didAuthenticate(_ vc: AuthViewController)
+}
+
 final class AuthViewController: UIViewController {
     
     private var imageView: UIImageView?
     private let showWebView = "ShowWebView"
+    private let showImageFeed = "ShowImageFeed"
+    private let storage = OAuth2TokenStorage()
+    weak var delegate: SplashViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,10 +81,22 @@ final class AuthViewController: UIViewController {
 //    MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        
+        vc.dismiss(animated: true)
+        OAuth2Service.shared.fetchOAuthToken(code: code, completion: { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .success(let access_token):
+                print(access_token)
+                self.storage.token = access_token
+                delegate?.didAuthenticate(self)
+            case .failure(let error):
+                print(error)
+            }
+        })
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         dismiss(animated: true)
     }
 }
+
