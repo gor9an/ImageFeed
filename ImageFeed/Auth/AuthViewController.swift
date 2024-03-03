@@ -13,38 +13,38 @@ protocol AuthViewControllerDelegate: AnyObject {
 
 final class AuthViewController: UIViewController {
     
-    private var imageView: UIImageView?
+    private var imageView = UIImageView(image: UIImage(named: "Logo_of_Unsplash"))
+    private var loginButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Войти", for: .normal)
+        button.setTitleColor(.ypBlack, for: .normal)
+        button.titleLabel?.font = .boldSystemFont(ofSize: 17)
+        button.backgroundColor = .ypWhite
+        button.layer.cornerRadius = 16
+        
+        return button
+    }()
+    
     private let showWebView = "ShowWebView"
     private let showImageFeed = "ShowImageFeed"
+    
     private let storage = OAuth2TokenStorage()
     weak var delegate: SplashViewController?
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configureView()
     }
     
-    
     private func configureView() {
-        imageView = UIImageView(image: UIImage(named: "Logo_of_Unsplash"))
-        let loginButton = UIButton()
         loginButton.addTarget(self, action: #selector(Self.didTapLoginButton), for: .touchUpInside)
-        
-        guard let imageView else {
-            return
-        }
-        
         imageView.translatesAutoresizingMaskIntoConstraints = false
         loginButton.translatesAutoresizingMaskIntoConstraints = false
+        
         view.addSubview(imageView)
         view.addSubview(loginButton)
         view.backgroundColor = .ypBlack
-        
-        loginButton.setTitle("Войти", for: .normal)
-        loginButton.setTitleColor(.ypBlack, for: .normal)
-        loginButton.titleLabel?.font = .boldSystemFont(ofSize: 17)
-        loginButton.backgroundColor = .ypWhite
-        loginButton.layer.cornerRadius = 16
         
         NSLayoutConstraint.activate([
             imageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
@@ -85,9 +85,9 @@ extension AuthViewController: WebViewViewControllerDelegate {
         OAuth2Service.shared.fetchOAuthToken(code: code, completion: { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success(let access_token):
-                print(access_token)
-                self.storage.token = access_token
+            case .success(let response):
+                print(response.access_token)
+                self.storage.token = response.access_token
                 delegate?.didAuthenticate(self)
             case .failure(let error):
                 print(error)

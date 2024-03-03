@@ -8,8 +8,6 @@
 import UIKit
 import WebKit
 
-fileprivate let UnsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
-
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
@@ -19,6 +17,13 @@ protocol WebViewViewControllerDelegate: AnyObject {
 final class WebViewViewController: UIViewController {
     private var webView = WKWebView()
     private let progressView = UIProgressView()
+    private let backButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(UIImage(named: "login_back_button"), for: .normal)
+        
+        return button
+    }()
+    
     
     weak var delegate: WebViewViewControllerDelegate?
     
@@ -73,12 +78,8 @@ final class WebViewViewController: UIViewController {
         progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
     }
     private func configureWebView() {
-        webView.backgroundColor = .ypWhite
-        
-        let backButton = UIButton(type: .custom)
-        backButton.setImage(UIImage(named: "login_back_button"), for: .normal)
         backButton.addTarget(self, action: #selector(Self.didTapBackButton), for: .touchUpInside)
-        
+        webView.backgroundColor = .ypWhite
         progressView.progressTintColor = .ypBlack
         
         webView.translatesAutoresizingMaskIntoConstraints = false
