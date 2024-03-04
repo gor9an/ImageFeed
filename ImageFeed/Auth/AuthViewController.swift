@@ -85,9 +85,9 @@ extension AuthViewController: WebViewViewControllerDelegate {
         OAuth2Service.shared.fetchOAuthToken(code: code, completion: { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success(let response):
-                print(response.access_token)
-                self.storage.token = response.access_token
+            case .success(let access_token):
+                print(access_token)
+                self.storage.token = access_token
                 delegate?.didAuthenticate(self)
             case .failure(let error):
                 print(error)
