@@ -32,14 +32,22 @@ final class WebViewViewController: UIViewController {
         configureWebView()
         
         guard var urlComponents = URLComponents(string: UnsplashAuthorizeURLString)
-        else { return }
+        else {
+            assertionFailure("Failed to create URL")
+            return
+        }
+        
         urlComponents.queryItems = [
             URLQueryItem(name: "client_id", value: AccessKey),
             URLQueryItem(name: "redirect_uri", value: RedirectURI),
             URLQueryItem(name: "response_type", value: "code"),
             URLQueryItem(name: "scope", value: AccessScope),
         ]
-        let url = urlComponents.url!
+        guard let url = urlComponents.url else {
+            assertionFailure("Failed to create URL")
+            return
+        }
+        
         let request = URLRequest(url: url)
         webView.load(request)
         
