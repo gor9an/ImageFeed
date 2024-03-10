@@ -26,9 +26,6 @@ final class AuthViewController: UIViewController {
         return button
     }()
     
-    private let showWebView = "ShowWebView"
-    private let showImageFeed = "ShowImageFeed"
-    
     private let storage = OAuth2TokenStorage()
     weak var delegate: SplashViewController?
     
@@ -61,21 +58,11 @@ final class AuthViewController: UIViewController {
         ])
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showWebView {
-            guard
-                let webViewViewController = segue.destination as? WebViewViewController
-            else { fatalError("Failed to prepare for \(showWebView)") }
-            webViewViewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
-        
-    }
-    
     @objc
     private func didTapLoginButton() {
-        performSegue(withIdentifier: showWebView, sender: nil)
+        let vc = WebViewViewController()
+        vc.modalPresentationStyle = .overFullScreen
+        present(vc, animated: true)
     }
 }
 

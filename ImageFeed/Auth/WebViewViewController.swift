@@ -24,32 +24,12 @@ final class WebViewViewController: UIViewController {
         return button
     }()
     
-    
     weak var delegate: WebViewViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureWebView()
-        
-        guard var urlComponents = URLComponents(string: UnsplashAuthorizeURLString)
-        else {
-            assertionFailure("Failed to create URL")
-            return
-        }
-        
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: AccessKey),
-            URLQueryItem(name: "redirect_uri", value: RedirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: AccessScope),
-        ]
-        guard let url = urlComponents.url else {
-            assertionFailure("Failed to create URL")
-            return
-        }
-        
-        let request = URLRequest(url: url)
-        webView.load(request)
+        loadWebView()
         
         webView.navigationDelegate = self
     }
@@ -148,6 +128,31 @@ extension WebViewViewController: WKNavigationDelegate {
         } else {
             return nil
         }
+    }
+}
+
+//MARK: - extension for WebView - func loadWebView
+private extension WebViewViewController {
+    private func loadWebView() {
+        guard var urlComponents = URLComponents(string: UnsplashAuthorizeURLString)
+        else {
+            assertionFailure("Failed to create URL")
+            return
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "client_id", value: AccessKey),
+            URLQueryItem(name: "redirect_uri", value: RedirectURI),
+            URLQueryItem(name: "response_type", value: "code"),
+            URLQueryItem(name: "scope", value: AccessScope),
+        ]
+        guard let url = urlComponents.url else {
+            assertionFailure("Failed to create URL")
+            return
+        }
+        
+        let request = URLRequest(url: url)
+        webView.load(request)
     }
 }
 
