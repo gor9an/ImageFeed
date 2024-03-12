@@ -40,6 +40,9 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <navigationItem key="navigationItem" id="U3I-LS-4LV"/>
+                    <connections>
+                        <segue destination="JTR-Wr-NZu" kind="presentation" identifier="ShowWebView" modalPresentationStyle="overFullScreen" id="5ZX-xd-7VK"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="i9C-K3-F5G" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

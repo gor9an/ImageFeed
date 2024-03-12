@@ -11,6 +11,7 @@ final class SplashViewController: UIViewController {
     private let storage = OAuth2TokenStorage()
     private let showAuth = "ShowAuth"
     private let showImageFeed = "ShowImageFeed"
+    private let profileService = ProfileService.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,6 +21,12 @@ final class SplashViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(false)
         if let _ = storage.token {
+            guard let token = storage.token else {
+                assertionFailure("Failed to get token from storage")
+                return
+            }
+            fetchProfile(token)
+            
             performSegue(withIdentifier: showImageFeed, sender: nil)
         } else {
             performSegue(withIdentifier: showAuth, sender: nil)
@@ -45,14 +52,32 @@ final class SplashViewController: UIViewController {
         
         let tabBarController = UIStoryboard(name: "Main", bundle: .main).instantiateViewController(identifier: "TabBarViewController")
         window.rootViewController = tabBarController
-        
+    }
+    
+    private func fetchProfile(_ token: String) {
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(storage.token!, completion: ({ [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(_):
+                self.switchToTabBarController()
+            case .failure(let error):
+                print(error)
+            }
+        }))
     }
 }
 //MARK: - AuthViewControllerDelegate
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
-        performSegue(withIdentifier: showImageFeed, sender: nil)
+        guard let token = storage.token else {
+            assertionFailure("Failed to get token from storage")
+            return
+        }
+        fetchProfile(token)
     }
     
     

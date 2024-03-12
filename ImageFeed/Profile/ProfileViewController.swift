@@ -14,17 +14,23 @@ final class ProfileViewController: UIViewController {
     private var nicknameLabel: UILabel?
     private var descriptionLabel: UILabel?
     private var stackView = UIStackView()
+    private let profileService = ProfileService.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
+        
         let image = UIImage(named: "mockProfilePhoto")
-        let name = "Екатерина Новикова"
-        let nickname = "@ekaterina_nov"
-        let description = "Hello, world!"
+        
+        guard let profile = profileService.profile else {
+            return
+        }
         
         configurePhotoImageView(with: image!)
-        configureLabels(name: name, nickname: nickname, description: description)
+        configureLabels(
+            name: profile.name,
+            loginName: profile.loginName,
+            bio: profile.name)
         configureExitButton()
     }
 // MARK: - Private Function
@@ -42,7 +48,7 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    private func configureLabels(name: String, nickname: String, description: String) {
+    private func configureLabels(name: String, loginName: String, bio: String) {
         nameLabel = UILabel()
         nicknameLabel = UILabel()
         descriptionLabel = UILabel()
@@ -64,10 +70,10 @@ final class ProfileViewController: UIViewController {
         nameLabel.text = name
         nameLabel.textColor = .ypWhite
         nameLabel.font = .boldSystemFont(ofSize: 23)
-        nicknameLabel.text = nickname
+        nicknameLabel.text = loginName
         nicknameLabel.textColor = .ypGrey
         nicknameLabel.font = .systemFont(ofSize: 13)
-        descriptionLabel.text = description
+        descriptionLabel.text = bio
         descriptionLabel.textColor = .ypWhite
         descriptionLabel.font = .systemFont(ofSize: 13)
         descriptionLabel.numberOfLines = 0
