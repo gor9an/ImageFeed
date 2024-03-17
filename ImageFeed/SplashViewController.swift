@@ -10,8 +10,8 @@ import UIKit
 final class SplashViewController: UIViewController {
     private let storage = OAuth2TokenStorage()
     private let showAuth = "ShowAuth"
-    private let showImageFeed = "ShowImageFeed"
     private let profileService = ProfileService.shared
+    private let profileImage = ProfileImageService.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,9 +25,8 @@ final class SplashViewController: UIViewController {
                 assertionFailure("Failed to get token from storage")
                 return
             }
-            fetchProfile(token)
             
-            performSegue(withIdentifier: showImageFeed, sender: nil)
+            fetchProfile(token)
         } else {
             performSegue(withIdentifier: showAuth, sender: nil)
             
@@ -61,12 +60,24 @@ final class SplashViewController: UIViewController {
             guard let self = self else { return }
             
             switch result {
-            case .success(_):
+            case .success(let profile):
+                self.fetchProfileImage(profile.username)
                 self.switchToTabBarController()
             case .failure(let error):
                 print(error)
             }
         }))
+    }
+    
+    private func fetchProfileImage(_ username: String) {
+        profileImage.fetchProfileImage(username: username, { result in            
+            switch result {
+            case .success(_): break
+            case .failure(let error):
+                print(error)
+            }
+            
+        })
     }
 }
 //MARK: - AuthViewControllerDelegate

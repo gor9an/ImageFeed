@@ -15,18 +15,35 @@ final class ProfileViewController: UIViewController {
     private var descriptionLabel: UILabel?
     private var stackView = UIStackView()
     private let profileService = ProfileService.shared
+    private let profileImage = ProfileImageService.shared
     
+    private var profileImageServiceObserver: NSObjectProtocol?
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
         
-        let image = UIImage(named: "mockProfilePhoto")
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+            forName: ProfileImageService.didChangeNotification,
+            object: self,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.updateAvatar()
+        }
+        
+        updateAvatar()
         
         guard let profile = profileService.profile else {
             return
         }
         
-        configurePhotoImageView(with: image!)
+        if let avatarURL = profileImage.avatarURL,
+           let url = URL(string: avatarURL) {
+//            TODO update avatar
+        }
+        
         configureLabels(
             name: profile.name,
             loginName: profile.loginName,
@@ -34,6 +51,14 @@ final class ProfileViewController: UIViewController {
         configureExitButton()
     }
 // MARK: - Private Function
+    private func updateAvatar() {
+        guard
+            isViewLoaded,
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let url = URL(string: profileImageURL) else { return }
+//        TODO Kingfisher
+    }
+    
     private func configurePhotoImageView(with image: UIImage) {
         photoImageView.image = image
         photoImageView.layer.cornerRadius = 35

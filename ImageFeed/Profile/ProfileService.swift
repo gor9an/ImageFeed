@@ -33,6 +33,7 @@ final class ProfileService {
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
     private var lastToken: String?
+    private let session = URLSession.shared
     
     func makeProfileInfoRequest(token: String) -> URLRequest? {
         guard var components = URLComponents(string: "\(DefaultBaseURL)") else {
@@ -67,36 +68,30 @@ final class ProfileService {
             return
         }
         
-        let task = urlSession.data(for: request, completion: { [weak self] result in            
+        let task = session.objectTask(for: request, completion: { [weak self] (result: Result<ProfileResult, Error>) in
             switch result {
-            case .success(let data):
-                do {
-                    let decoder = JSONDecoder()
-                    let response = try decoder.decode(ProfileResult.self, from: data)
-                    
-                    self?.profile = Profile(
-                        username: response.username,
-                        name: "\(response.first_name ?? "") \(response.last_name ?? "")",
-                        loginName: "@\(response.username)",
-                        bio: response.bio ?? "")
-                    
-                    guard let profile = self?.profile else {
-                        assertionFailure("Failed to create profile")
-                        return
-                    }
-                    
-                    completion(.success(profile))
-                } catch {
-                    completion(.failure(error))
+            case .success(let profile):
+                self?.profile = Profile(
+                    username: profile.username,
+                    name: "\(profile.first_name ?? "") \(profile.last_name ?? "")",
+                    loginName: "@\(profile.username)",
+                    bio: profile.bio ?? "")
+                
+                guard let profile = self?.profile else {
+                    assertionFailure("Failed to create profile")
+                    return
                 }
+                completion(.success(profile))
                 
             case .failure(let error):
+                print("[ProfileService.fetchProfile] failure - \(error)")
                 completion(.failure(error))
             }
             
             self?.task = nil
             self?.lastToken = nil
         })
+        
         task.resume()
     }
 }
