@@ -69,28 +69,35 @@ final class ProfileImageService {
         }
         
         let task = urlSession.objectTask(for: request, completion: { [weak self] (result: Result<UserResult, Error>) in
+            
+            guard let self = self else {
+                return
+            }
+            
             switch result {
             case .success(let response):
-                self?.avatarURL = response.profile_image["small"]
-                guard let avatarURL = self?.avatarURL else {
+                self.avatarURL = response.profile_image["large"]
+                
+                guard let avatarURL = self.avatarURL else {
                     assertionFailure("Failed to create profile image")
                     return
                 }
+                
+                NotificationCenter.default
+                    .post(
+                        name: ProfileImageService.didChangeNotification,
+                        object: self,
+                        userInfo: ["URL": avatarURL])
+                
                 completion(.success(avatarURL))
             case .failure(let error):
                 print("[ProfileImageService.fetchProfileImage] failure - \(error)")
                 completion(.failure(error))
             }
 
-            self?.task = nil
-            self?.lastUsername = nil
+            self.task = nil
+            self.lastUsername = nil
         })
-        
-        NotificationCenter.default
-            .post(
-                name: ProfileImageService.didChangeNotification,
-                object: self,
-                userInfo: ["URL": avatarURL])
         
         task.resume()
     }

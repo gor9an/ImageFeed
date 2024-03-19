@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     //MARK: - Private Properties
@@ -18,30 +19,35 @@ final class ProfileViewController: UIViewController {
     private let profileImage = ProfileImageService.shared
     
     private var profileImageServiceObserver: NSObjectProtocol?
-
+    
+    override init(nibName: String?, bundle: Bundle?) {
+        super.init(nibName: nibName, bundle: bundle)
+        addObserver()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        addObserver()
+    }
+    
+    deinit {
+        removeObserver()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
         
-        profileImageServiceObserver = NotificationCenter.default
-            .addObserver(
-            forName: ProfileImageService.didChangeNotification,
-            object: self,
-            queue: .main
-        ) { [weak self] _ in
-            guard let self = self else { return }
-            self.updateAvatar()
-        }
-        
-        updateAvatar()
+        configurePhotoImageView()
         
         guard let profile = profileService.profile else {
             return
         }
         
-        if let avatarURL = profileImage.avatarURL,
+        if let avatarURL = ProfileImageService.shared.avatarURL,
            let url = URL(string: avatarURL) {
-//            TODO update avatar
+            
+            prepareImage(url: url)
         }
         
         configureLabels(
@@ -50,18 +56,43 @@ final class ProfileViewController: UIViewController {
             bio: profile.name)
         configureExitButton()
     }
-// MARK: - Private Function
-    private func updateAvatar() {
-        guard
-            isViewLoaded,
-            let profileImageURL = ProfileImageService.shared.avatarURL,
-            let url = URL(string: profileImageURL) else { return }
-//        TODO Kingfisher
+    // MARK: - Private Function
+    private func addObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateAvatar(notification:)),
+            name: ProfileImageService.didChangeNotification,
+            object: nil)
     }
     
-    private func configurePhotoImageView(with image: UIImage) {
-        photoImageView.image = image
-        photoImageView.layer.cornerRadius = 35
+    private func removeObserver() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: ProfileImageService.didChangeNotification,
+            object: nil)
+    }
+    
+    private func prepareImage(url: URL) {
+        let processor = RoundCornerImageProcessor(cornerRadius: 70)
+        
+        photoImageView.kf.indicatorType = .activity
+        photoImageView.kf.setImage(with: url,
+                                   placeholder: UIImage(named: "tab_profile_active.png"),
+                                   options: [.processor(processor)])
+    }
+    
+    @objc
+    private func updateAvatar(notification: Notification) {
+        guard
+            isViewLoaded,
+            let userInfo = notification.userInfo,
+            let profileImageURL = userInfo["URL"] as? String,
+            let url = URL(string: profileImageURL) else { return }
+        
+        prepareImage(url: url)
+    }
+    
+    private func configurePhotoImageView() {
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(photoImageView)
         
@@ -80,7 +111,7 @@ final class ProfileViewController: UIViewController {
         guard let nameLabel = nameLabel else { return }
         guard let nicknameLabel = nicknameLabel else { return }
         guard let descriptionLabel = descriptionLabel else { return }
-
+        
         stackView.spacing = 8
         stackView.axis = .vertical
         stackView.alignment = .fill
@@ -102,7 +133,7 @@ final class ProfileViewController: UIViewController {
         descriptionLabel.textColor = .ypWhite
         descriptionLabel.font = .systemFont(ofSize: 13)
         descriptionLabel.numberOfLines = 0
-
+        
         
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
