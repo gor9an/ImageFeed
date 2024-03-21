@@ -94,6 +94,7 @@ final class ProfileViewController: UIViewController {
     
     private func configurePhotoImageView() {
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
+        photoImageView.backgroundColor = .ypBlack
         view.addSubview(photoImageView)
         
         NSLayoutConstraint.activate([

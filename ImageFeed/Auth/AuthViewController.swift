@@ -7,6 +7,7 @@
 
 import UIKit
 import ProgressHUD
+import SwiftKeychainWrapper
 
 protocol AuthViewControllerDelegate: AnyObject {
     func didAuthenticate(_ vc: AuthViewController)
@@ -28,7 +29,6 @@ final class AuthViewController: UIViewController {
         return button
     }()
     
-    private let storage = OAuth2TokenStorage()
     weak var delegate: SplashViewController?
     
     override func viewDidLoad() {
@@ -94,11 +94,16 @@ extension AuthViewController: WebViewViewControllerDelegate {
             
             switch result {
             case .success(let access_token):
-                print(access_token)
-                self.storage.token = access_token
+                let isSuccess = KeychainWrapper.standard.set(access_token, forKey: keyChainKey)
+                
+                guard isSuccess else {
+                    assertionFailure("Token has not been saved")
+                    return
+                }
+                
                 delegate?.didAuthenticate(self)
             case .failure(_):
-                var alert = UIAlertController(
+                let alert = UIAlertController(
                     title: "Что-то пошло не так(",
                     message: "Не удалось войти в систему",
                     preferredStyle: .alert)

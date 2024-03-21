@@ -6,9 +6,9 @@
 //
 
 import UIKit
+import SwiftKeychainWrapper
 
 final class SplashViewController: UIViewController {
-    private let storage = OAuth2TokenStorage()
     private let showAuth = "ShowAuth"
     private let profileService = ProfileService.shared
     private let profileImage = ProfileImageService.shared
@@ -20,8 +20,8 @@ final class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(false)
-        if let _ = storage.token {
-            guard let token = storage.token else {
+        if let _ = KeychainWrapper.standard.string(forKey: keyChainKey) {
+            guard let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
                 assertionFailure("Failed to get token from storage")
                 return
             }
@@ -55,7 +55,7 @@ final class SplashViewController: UIViewController {
     
     private func fetchProfile(_ token: String) {
         UIBlockingProgressHUD.show()
-        profileService.fetchProfile(storage.token!, completion: ({ [weak self] result in
+        profileService.fetchProfile(token, completion: ({ [weak self] result in
             UIBlockingProgressHUD.dismiss()
             guard let self = self else { return }
             
@@ -84,7 +84,7 @@ final class SplashViewController: UIViewController {
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
-        guard let token = storage.token else {
+        guard let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
             assertionFailure("Failed to get token from storage")
             return
         }

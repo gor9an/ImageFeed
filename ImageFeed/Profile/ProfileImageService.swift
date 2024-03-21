@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftKeychainWrapper
 
 enum ProfileImageServiceError: Error {
     case invalidRequest
@@ -27,10 +28,10 @@ final class ProfileImageService {
     private var task: URLSessionTask?
     private var lastUsername: String?
     private let urlSession = URLSession.shared
-    private let storage = OAuth2TokenStorage()
     
     func makeProfileImageRequest(username: String) -> URLRequest? {
-        guard let token = storage.token else {
+        guard
+            let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
             assertionFailure("Token - nil")
             return nil
         }
