@@ -9,7 +9,6 @@ import UIKit
 import SwiftKeychainWrapper
 
 final class SplashViewController: UIViewController {
-    private let showAuth = "ShowAuth"
     private let profileService = ProfileService.shared
     private let profileImage = ProfileImageService.shared
     
@@ -28,7 +27,10 @@ final class SplashViewController: UIViewController {
             
             fetchProfile(token)
         } else {
-            performSegue(withIdentifier: showAuth, sender: nil)
+            let authVC = AuthViewController()
+            authVC.delegate = self
+            authVC.modalPresentationStyle = .overFullScreen
+            present(authVC, animated: true, completion: nil)
             
         }
     }
@@ -92,22 +94,4 @@ extension SplashViewController: AuthViewControllerDelegate {
     }
     
     
-}
-
-//MARK: - prepare segue
-extension SplashViewController {
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showAuth {
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let viewController = navigationController.viewControllers[0] as? AuthViewController
-            else {
-                assertionFailure("Failed to prepare for \(showAuth)")
-                return
-            }
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
-    }
 }

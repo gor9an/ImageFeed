@@ -14,8 +14,6 @@ protocol AuthViewControllerDelegate: AnyObject {
 }
 
 final class AuthViewController: UIViewController {
-    private let showWebView = "ShowWebView"
-    
     
     private var imageView = UIImageView(image: UIImage(named: "Logo_of_Unsplash"))
     private var loginButton: UIButton = {
@@ -60,21 +58,12 @@ final class AuthViewController: UIViewController {
         ])
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showWebView {
-            guard
-                let webViewViewController = segue.destination as? WebViewViewController
-            else { fatalError("Failed to prepare for \(showWebView)") }
-            webViewViewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
-        
-    }
-    
     @objc
     private func didTapLoginButton() {
-        performSegue(withIdentifier: showWebView, sender: nil)
+        let webVVC = WebViewViewController()
+        webVVC.delegate = self
+        webVVC.modalPresentationStyle = .overFullScreen
+        present(webVVC, animated: true, completion: nil)
     }
 }
 
