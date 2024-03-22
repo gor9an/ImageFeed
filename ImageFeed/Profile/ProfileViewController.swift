@@ -10,7 +10,12 @@ import Kingfisher
 
 final class ProfileViewController: UIViewController {
     //MARK: - Private Properties
-    private var photoImageView = UIImageView()
+    private var photoImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.layer.cornerRadius = 35
+        imageView.layer.masksToBounds = true
+        return imageView
+    }()
     private var nameLabel: UILabel?
     private var nicknameLabel: UILabel?
     private var descriptionLabel: UILabel?
@@ -73,12 +78,10 @@ final class ProfileViewController: UIViewController {
     }
     
     private func prepareImage(url: URL) {
-        let processor = RoundCornerImageProcessor(cornerRadius: 70)
-        
         photoImageView.kf.indicatorType = .activity
         photoImageView.kf.setImage(with: url,
-                                   placeholder: UIImage(named: "tab_profile_active.png"),
-                                   options: [.processor(processor)])
+                                   placeholder: UIImage(named: "tab_profile_active.png")
+        )
     }
     
     @objc
@@ -94,7 +97,6 @@ final class ProfileViewController: UIViewController {
     
     private func configurePhotoImageView() {
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
-        photoImageView.backgroundColor = .ypBlack
         view.addSubview(photoImageView)
         
         NSLayoutConstraint.activate([
