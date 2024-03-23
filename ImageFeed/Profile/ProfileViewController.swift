@@ -5,8 +5,8 @@
 //  Created by Andrey Gordienko on 28.01.2024.
 //
 
-import UIKit
 import Kingfisher
+import UIKit
 
 final class ProfileViewController: UIViewController {
     //MARK: - Private Properties

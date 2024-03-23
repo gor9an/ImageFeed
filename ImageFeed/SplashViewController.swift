@@ -5,8 +5,9 @@
 //  Created by Andrey Gordienko on 29.02.2024.
 //
 
-import UIKit
 import SwiftKeychainWrapper
+import UIKit
+
 
 final class SplashViewController: UIViewController {
     private let profileService = ProfileService.shared
@@ -27,12 +28,15 @@ final class SplashViewController: UIViewController {
             
             fetchProfile(token)
         } else {
-            let authVC = AuthViewController()
-            authVC.delegate = self
-            authVC.modalPresentationStyle = .overFullScreen
-            present(authVC, animated: true, completion: nil)
-            
+            showAuthenticationScreen()
         }
+    }
+    
+    private func showAuthenticationScreen() {
+        let authVC = AuthViewController()
+        authVC.delegate = self
+        authVC.modalPresentationStyle = .overFullScreen
+        present(authVC, animated: true, completion: nil)
     }
     
     private func configureView() {

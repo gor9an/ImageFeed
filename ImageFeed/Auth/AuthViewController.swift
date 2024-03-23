@@ -5,9 +5,9 @@
 //  Created by Andrey Gordienko on 16.02.2024.
 //
 
-import UIKit
 import ProgressHUD
 import SwiftKeychainWrapper
+import UIKit
 
 protocol AuthViewControllerDelegate: AnyObject {
     func didAuthenticate(_ vc: AuthViewController)
