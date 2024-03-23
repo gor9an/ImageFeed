@@ -17,6 +17,7 @@ protocol WebViewViewControllerDelegate: AnyObject {
 final class WebViewViewController: UIViewController {
     private var webView = WKWebView()
     private let progressView = UIProgressView()
+    private var estimatedProgressObservation: NSKeyValueObservation?
     private let backButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(UIImage(named: "login_back_button"), for: .normal)
@@ -24,52 +25,23 @@ final class WebViewViewController: UIViewController {
         return button
     }()
     
-    
     weak var delegate: WebViewViewControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureWebView()
         
-        guard var urlComponents = URLComponents(string: UnsplashAuthorizeURLString)
-        else { return }
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: AccessKey),
-            URLQueryItem(name: "redirect_uri", value: RedirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: AccessScope),
-        ]
-        let url = urlComponents.url!
-        let request = URLRequest(url: url)
-        webView.load(request)
+        estimatedProgressObservation = webView.observe(
+            \.estimatedProgress,
+             options: [.new],
+            changeHandler: { [weak self] _, _ in
+                guard let self = self else { return }
+                self.updateProgress()
+            })
+        
+        configureWebView()
+        loadWebView()
         
         webView.navigationDelegate = self
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        webView.addObserver(
-            self,
-            forKeyPath: #keyPath(WKWebView.estimatedProgress),
-            options: .new,
-            context: nil)
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        webView.removeObserver(
-            self,
-            forKeyPath: #keyPath(WKWebView.estimatedProgress))
-    }
-    
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == #keyPath(WKWebView.estimatedProgress) {
-            updateProgress()
-        } else {
-            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
-        }
     }
     
     //    MARK: - Private Functions
@@ -77,6 +49,7 @@ final class WebViewViewController: UIViewController {
         progressView.progress = Float(webView.estimatedProgress)
         progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
     }
+    
     private func configureWebView() {
         backButton.addTarget(self, action: #selector(Self.didTapBackButton), for: .touchUpInside)
         webView.backgroundColor = .ypWhite
@@ -140,6 +113,31 @@ extension WebViewViewController: WKNavigationDelegate {
         } else {
             return nil
         }
+    }
+}
+
+//MARK: - extension for WebView - func loadWebView
+private extension WebViewViewController {
+    private func loadWebView() {
+        guard var urlComponents = URLComponents(string: UnsplashAuthorizeURLString)
+        else {
+            assertionFailure("Failed to create URL")
+            return
+        }
+        
+        urlComponents.queryItems = [
+            URLQueryItem(name: "client_id", value: AccessKey),
+            URLQueryItem(name: "redirect_uri", value: RedirectURI),
+            URLQueryItem(name: "response_type", value: "code"),
+            URLQueryItem(name: "scope", value: AccessScope),
+        ]
+        guard let url = urlComponents.url else {
+            assertionFailure("Failed to create URL")
+            return
+        }
+        
+        let request = URLRequest(url: url)
+        webView.load(request)
     }
 }
 

@@ -5,12 +5,13 @@
 //  Created by Andrey Gordienko on 29.02.2024.
 //
 
+import SwiftKeychainWrapper
 import UIKit
 
+
 final class SplashViewController: UIViewController {
-    private let storage = OAuth2TokenStorage()
-    private let showAuth = "ShowAuth"
-    private let showImageFeed = "ShowImageFeed"
+    private let profileService = ProfileService.shared
+    private let profileImage = ProfileImageService.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,12 +20,23 @@ final class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(false)
-        if let _ = storage.token {
-            performSegue(withIdentifier: showImageFeed, sender: nil)
-        } else {
-            performSegue(withIdentifier: showAuth, sender: nil)
+        if let _ = KeychainWrapper.standard.string(forKey: keyChainKey) {
+            guard let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
+                assertionFailure("Failed to get token from storage")
+                return
+            }
             
+            fetchProfile(token)
+        } else {
+            showAuthenticationScreen()
         }
+    }
+    
+    private func showAuthenticationScreen() {
+        let authVC = AuthViewController()
+        authVC.delegate = self
+        authVC.modalPresentationStyle = .overFullScreen
+        present(authVC, animated: true, completion: nil)
     }
     
     private func configureView() {
@@ -45,33 +57,45 @@ final class SplashViewController: UIViewController {
         
         let tabBarController = UIStoryboard(name: "Main", bundle: .main).instantiateViewController(identifier: "TabBarViewController")
         window.rootViewController = tabBarController
-        
+    }
+    
+    private func fetchProfile(_ token: String) {
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(token, completion: ({ [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let profile):
+                self.fetchProfileImage(profile.username)
+                self.switchToTabBarController()
+            case .failure(let error):
+                print(error)
+            }
+        }))
+    }
+    
+    private func fetchProfileImage(_ username: String) {
+        profileImage.fetchProfileImage(username: username, { result in            
+            switch result {
+            case .success(_): break
+            case .failure(let error):
+                print(error)
+            }
+            
+        })
     }
 }
 //MARK: - AuthViewControllerDelegate
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
-        performSegue(withIdentifier: showImageFeed, sender: nil)
-    }
-    
-    
-}
-
-//MARK: - prepare segue
-extension SplashViewController {
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showAuth {
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let viewController = navigationController.viewControllers[0] as? AuthViewController
-            else {
-                assertionFailure("Failed to prepare for \(showAuth)")
-                return
-            }
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
+        guard let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
+            assertionFailure("Failed to get token from storage")
+            return
         }
+        fetchProfile(token)
     }
+    
+    
 }

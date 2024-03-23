@@ -15,3 +15,4 @@ let DefaultBaseURL = URL(string: "https://api.unsplash.com")!
 
 let UnsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
 let UnsplashUrl = "https://unsplash.com/oauth/token"
+let keyChainKey = "Auth token"

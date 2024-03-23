@@ -5,32 +5,97 @@
 //  Created by Andrey Gordienko on 28.01.2024.
 //
 
+import Kingfisher
 import UIKit
 
 final class ProfileViewController: UIViewController {
     //MARK: - Private Properties
-    private var photoImageView = UIImageView()
+    private var photoImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.layer.cornerRadius = 35
+        imageView.layer.masksToBounds = true
+        return imageView
+    }()
     private var nameLabel: UILabel?
     private var nicknameLabel: UILabel?
     private var descriptionLabel: UILabel?
     private var stackView = UIStackView()
+    private let profileService = ProfileService.shared
+    private let profileImage = ProfileImageService.shared
+    
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
+    override init(nibName: String?, bundle: Bundle?) {
+        super.init(nibName: nibName, bundle: bundle)
+        addObserver()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        addObserver()
+    }
+    
+    deinit {
+        removeObserver()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBlack
-        let image = UIImage(named: "mockProfilePhoto")
-        let name = "Екатерина Новикова"
-        let nickname = "@ekaterina_nov"
-        let description = "Hello, world!"
         
-        configurePhotoImageView(with: image!)
-        configureLabels(name: name, nickname: nickname, description: description)
+        configurePhotoImageView()
+        
+        guard let profile = profileService.profile else {
+            return
+        }
+        
+        if let avatarURL = ProfileImageService.shared.avatarURL,
+           let url = URL(string: avatarURL) {
+            
+            prepareImage(url: url)
+        }
+        
+        configureLabels(
+            name: profile.name,
+            loginName: profile.loginName,
+            bio: profile.name)
         configureExitButton()
     }
-// MARK: - Private Function
-    private func configurePhotoImageView(with image: UIImage) {
-        photoImageView.image = image
-        photoImageView.layer.cornerRadius = 35
+    // MARK: - Private Function
+    private func addObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateAvatar(notification:)),
+            name: ProfileImageService.didChangeNotification,
+            object: nil)
+    }
+    
+    private func removeObserver() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: ProfileImageService.didChangeNotification,
+            object: nil)
+    }
+    
+    private func prepareImage(url: URL) {
+        photoImageView.kf.indicatorType = .activity
+        photoImageView.kf.setImage(with: url,
+                                   placeholder: UIImage(named: "tab_profile_active.png")
+        )
+    }
+    
+    @objc
+    private func updateAvatar(notification: Notification) {
+        guard
+            isViewLoaded,
+            let userInfo = notification.userInfo,
+            let profileImageURL = userInfo["URL"] as? String,
+            let url = URL(string: profileImageURL) else { return }
+        
+        prepareImage(url: url)
+    }
+    
+    private func configurePhotoImageView() {
         photoImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(photoImageView)
         
@@ -42,14 +107,14 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    private func configureLabels(name: String, nickname: String, description: String) {
+    private func configureLabels(name: String, loginName: String, bio: String) {
         nameLabel = UILabel()
         nicknameLabel = UILabel()
         descriptionLabel = UILabel()
         guard let nameLabel = nameLabel else { return }
         guard let nicknameLabel = nicknameLabel else { return }
         guard let descriptionLabel = descriptionLabel else { return }
-
+        
         stackView.spacing = 8
         stackView.axis = .vertical
         stackView.alignment = .fill
@@ -64,14 +129,14 @@ final class ProfileViewController: UIViewController {
         nameLabel.text = name
         nameLabel.textColor = .ypWhite
         nameLabel.font = .boldSystemFont(ofSize: 23)
-        nicknameLabel.text = nickname
+        nicknameLabel.text = loginName
         nicknameLabel.textColor = .ypGrey
         nicknameLabel.font = .systemFont(ofSize: 13)
-        descriptionLabel.text = description
+        descriptionLabel.text = bio
         descriptionLabel.textColor = .ypWhite
         descriptionLabel.font = .systemFont(ofSize: 13)
         descriptionLabel.numberOfLines = 0
-
+        
         
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)

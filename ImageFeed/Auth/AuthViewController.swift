@@ -5,6 +5,8 @@
 //  Created by Andrey Gordienko on 16.02.2024.
 //
 
+import ProgressHUD
+import SwiftKeychainWrapper
 import UIKit
 
 protocol AuthViewControllerDelegate: AnyObject {
@@ -25,10 +27,6 @@ final class AuthViewController: UIViewController {
         return button
     }()
     
-    private let showWebView = "ShowWebView"
-    private let showImageFeed = "ShowImageFeed"
-    
-    private let storage = OAuth2TokenStorage()
     weak var delegate: SplashViewController?
     
     override func viewDidLoad() {
@@ -60,37 +58,46 @@ final class AuthViewController: UIViewController {
         ])
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showWebView {
-            guard
-                let webViewViewController = segue.destination as? WebViewViewController
-            else { fatalError("Failed to prepare for \(showWebView)") }
-            webViewViewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
-        
-    }
-    
     @objc
     private func didTapLoginButton() {
-        performSegue(withIdentifier: showWebView, sender: nil)
+        let webVVC = WebViewViewController()
+        webVVC.delegate = self
+        webVVC.modalPresentationStyle = .overFullScreen
+        present(webVVC, animated: true, completion: nil)
     }
 }
 
 //    MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
-    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
+    func webViewViewController(
+        _ vc: WebViewViewController,
+        didAuthenticateWithCode code: String
+    ) {
         vc.dismiss(animated: true)
+        
+        UIBlockingProgressHUD.show()
         OAuth2Service.shared.fetchOAuthToken(code: code, completion: { [weak self] result in
             guard let self = self else { return }
+            
+            UIBlockingProgressHUD.dismiss()
+            
             switch result {
             case .success(let access_token):
-                print(access_token)
-                self.storage.token = access_token
+                let isSuccess = KeychainWrapper.standard.set(access_token, forKey: keyChainKey)
+                
+                guard isSuccess else {
+                    assertionFailure("Token has not been saved")
+                    return
+                }
+                
                 delegate?.didAuthenticate(self)
-            case .failure(let error):
-                print(error)
+            case .failure(_):
+                let alert = UIAlertController(
+                    title: "Что-то пошло не так(",
+                    message: "Не удалось войти в систему",
+                    preferredStyle: .alert)
+                let action = UIAlertAction(title: "Ок", style: .default)
+                alert.addAction(action)
             }
         })
     }
