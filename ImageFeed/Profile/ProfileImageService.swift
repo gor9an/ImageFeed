@@ -29,7 +29,7 @@ final class ProfileImageService {
     private var lastUsername: String?
     private let urlSession = URLSession.shared
     
-    func makeProfileImageRequest(username: String) -> URLRequest? {
+    private func makeProfileImageRequest(username: String) -> URLRequest? {
         guard
             let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
             assertionFailure("Token - nil")

@@ -45,11 +45,17 @@ final class ImagesListViewController: UIViewController {
 
 //MARK: - UITableViewDelegate
 extension ImagesListViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(
+        _ tableView: UITableView, 
+        didSelectRowAt indexPath: IndexPath
+    ) {
         performSegue(withIdentifier: showSingleImage, sender: indexPath)
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(
+        _ tableView: UITableView,
+        heightForRowAt indexPath: IndexPath
+    ) -> CGFloat {
         guard let cardImage = UIImage(named: photosName[indexPath.row]) else {
             return 0
         }
@@ -65,11 +71,17 @@ extension ImagesListViewController: UITableViewDelegate {
 
 //MARK: - UITableViewDataSource
 extension ImagesListViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(
+        _ tableView: UITableView,
+        numberOfRowsInSection section: Int
+    ) -> Int {
         return photosName.count
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(
+        _ tableView: UITableView,
+        cellForRowAt indexPath: IndexPath
+    ) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: ImagesListCell.reuseIdentifier, for: indexPath)
         guard let imageListCell = cell as? ImagesListCell else {
             return UITableViewCell()
@@ -82,5 +94,14 @@ extension ImagesListViewController: UITableViewDataSource {
         imageListCell.configCell(image: image, date: date, isLiked: isLiked)
         
         return imageListCell
+    }
+    
+    func tableView(
+        _ tableView: UITableView,
+        willDisplay cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
+//        guard indexPath.row + 1 == photos.count else { return }
+        //TODO: call fetchPhotosNextPage()
     }
 }
