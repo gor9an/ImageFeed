@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftKeychainWrapper
 
 enum ImageListServiceError: Error {
     case invalidRequest
@@ -33,11 +34,11 @@ struct UrlsResult: Decodable {
 
 struct PhotoResult: Decodable {
     let id: String
-    let created_at: Date?
+    let created_at: String
     let width: Int
     let height: Int
     let liked_by_user: Bool
-    let description: String
+    let description: String?
     let urls: UrlsResult
 }
 
@@ -67,48 +68,63 @@ final class ImagesListService {
             return nil
         }
         
-        let request = URLRequest(url: url)
+        guard let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
+            assertionFailure("Failed to get token from storage")
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         return request
     }
-    func fetchPhotosNextPage(_ completion: @escaping (Result<Photo, Error>) -> Void) {
+    
+    func fetchPhotosNextPage() {
         
-        guard task != nil else {
-            completion(.failure(ImageListServiceError.taskNil))
+        guard task == nil else {
+            assertionFailure("\(ImageListServiceError.taskNil)")
             return
         }
         
         let nextPageNumber = (lastLoadedPage ?? 0) + 1
         guard let request = makeImageListRequest(page: nextPageNumber) else {
-            completion(.failure(ImageListServiceError.invalidRequest))
+            assertionFailure("\(ImageListServiceError.invalidRequest)")
             return
         }
         
-        let task = urlSession.objectTask(for: request, completion: { [weak self] (result : Result<PhotoResult, Error>) in
+        let task = urlSession.objectTask(for: request, completion: { [weak self] (result : Result<[PhotoResult], Error>) in
             guard let self = self else {
                 return
             }
             
             switch result {
-            case .success(let photoResult):
-                let photo = Photo(
-                    id: photoResult.id,
-                    size: CGSize(width: photoResult.width, height: photoResult.height),
-                    createdAt: Date(),
-                    welcomeDescription: photoResult.description,
-                    thumbImageURL: photoResult.urls.thumb,
-                    largeImageURL: photoResult.urls.full,
-                    isLiked: photoResult.liked_by_user
-                )
-                photos.append(photo)
-                NotificationCenter.default.post(
-                    name: ImagesListService.didChangeNotification,
-                    object: self,
-                    userInfo: ["Photo": photo])
-                completion(.success(photo))
+            case .success(let photosResult):
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else {
+                        return
+                    }
+                    
+                    for photoResult in photosResult {
+                        let photo = Photo(
+                            id: photoResult.id,
+                            size: CGSize(width: photoResult.width, height: photoResult.height),
+                            createdAt: Date(),
+                            welcomeDescription: photoResult.description,
+                            thumbImageURL: photoResult.urls.thumb,
+                            largeImageURL: photoResult.urls.full,
+                            isLiked: photoResult.liked_by_user
+                        )
+                        self.lastLoadedPage = nextPageNumber
+                        self.photos.append(photo)
+                    }
+                    
+                    NotificationCenter.default.post(
+                        name: ImagesListService.didChangeNotification,
+                        object: self,
+                        userInfo: ["Photo": self.photos])
+                }
             case .failure(let error):
                 print("[ImagesListService.fetchPhotosNextPage] failure - \(error)")
-                completion(.failure(error))
             }
             self.task = nil
         })
