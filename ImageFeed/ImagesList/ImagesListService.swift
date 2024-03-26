@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftKeychainWrapper
+import UIKit
 
 enum ImageListServiceError: Error {
     case invalidRequest
@@ -45,7 +46,7 @@ struct PhotoResult: Decodable {
 final class ImagesListService {
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.dateFormat = "dd MMMM yyyy"
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         formatter.locale = Locale(identifier: "ru_RUS")
         return formatter
     }()
@@ -92,11 +93,7 @@ final class ImagesListService {
             assertionFailure("Failed to create URL")
             return nil
         }
-        components.path = "/photos"
-        components.queryItems = [
-            URLQueryItem(name: "id", value: photoId)
-        ]
-        components.path += "/like"
+        components.path = "/photos/\(photoId)/like"
         
         guard let url = components.url else {
             assertionFailure("Failed to create URL")
@@ -104,6 +101,11 @@ final class ImagesListService {
         }
         
         var request = URLRequest(url: url)
+        guard let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
+            assertionFailure("Failed to get token from storage")
+            return nil
+        }
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpMethod = isLike ? "DELETE" : "POST"
         return request
     }
@@ -167,12 +169,12 @@ final class ImagesListService {
             return
         }
         
-        let task = urlSession.objectTask(for: request, completion: { (result: Result<PhotoResult, Error>) in
+        let task = urlSession.objectTask(for: request, completion: { [weak self] (result: Result<PhotoResult, Error>) in
             switch result {
-            case .success(let photoResult):
+            case .success:
                 DispatchQueue.main.async { [weak self] in
                     guard let self = self else { return }
-                    if let index = self.photos.firstIndex(where: {$0.id == photoResult.id}) {
+                    if let index = self.photos.firstIndex(where: {$0.id == photoId}) {
                         let photo = self.photos[index]
                         
                         let newPhoto = Photo(
@@ -190,7 +192,6 @@ final class ImagesListService {
             case .failure(let error):
                 print("[ImagesListService.changeLike] failure - \(error)")
             }
-            
         })
         task.resume()
     }

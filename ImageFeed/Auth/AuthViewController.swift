@@ -95,9 +95,11 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 let alert = UIAlertController(
                     title: "Что-то пошло не так(",
                     message: "Не удалось войти в систему",
-                    preferredStyle: .alert)
+                    preferredStyle: .alert
+                )
                 let action = UIAlertAction(title: "Ок", style: .default)
                 alert.addAction(action)
+                self.present(alert, animated: true, completion: nil)
             }
         })
     }

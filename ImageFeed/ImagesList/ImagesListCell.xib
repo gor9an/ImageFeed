@@ -36,6 +36,9 @@
                         <rect key="frame" x="329" y="11" width="44" height="44"/>
                         <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                         <state key="normal" image="FavoritesActive"/>
+                        <connections>
+                            <action selector="likeButtonClicked:" destination="Y3d-Pj-qjj" eventType="touchUpInside" id="Hvn-x4-HQ2"/>
+                        </connections>
                     </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="1 января 2024" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hhZ-vn-iUn" userLabel="DataLabel">
                         <rect key="frame" x="24.000000000000007" y="110.33333333333333" width="88.666666666666686" height="15.666666666666671"/>
@@ -63,7 +66,7 @@
             <connections>
                 <outlet property="cardImage" destination="Nv0-xb-RgV" id="dOv-qu-P6t"/>
                 <outlet property="dateTitle" destination="hhZ-vn-iUn" id="iO7-wY-gKx"/>
-                <outlet property="likeButton" destination="ahs-2C-kQR" id="vuu-v6-IrY"/>
+                <outlet property="likeButton" destination="ahs-2C-kQR" id="kZn-lW-yC9"/>
             </connections>
             <point key="canvasLocation" x="117" y="43"/>
         </tableViewCell>
