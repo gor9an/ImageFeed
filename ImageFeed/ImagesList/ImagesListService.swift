@@ -17,7 +17,7 @@ enum ImageListServiceError: Error {
 struct Photo {
     let id: String
     let size: CGSize
-    let createdAt: Date?
+    let createdAt: Date
     let welcomeDescription: String?
     let thumbImageURL: String
     let largeImageURL: String
@@ -43,6 +43,13 @@ struct PhotoResult: Decodable {
 }
 
 final class ImagesListService {
+    private lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MMMM yyyy"
+        formatter.locale = Locale(identifier: "ru_RUS")
+        return formatter
+    }()
+    
     static let shared = ImagesListService()
     private init() { }
     
@@ -53,7 +60,7 @@ final class ImagesListService {
     private var task: URLSessionTask?
     private let urlSession = URLSession.shared
     
-//    MARK: - Private functions
+    //    MARK: - Private functions
     private func makeImageListRequest(page: Int) -> URLRequest? {
         guard var components = URLComponents(string: "\(DefaultBaseURL)") else {
             assertionFailure("Failed to create URL")
@@ -77,6 +84,27 @@ final class ImagesListService {
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
+        return request
+    }
+    
+    private func makeLikeRequest(photoId: String, isLike: Bool) -> URLRequest? {
+        guard var components = URLComponents(string: "\(DefaultBaseURL)") else {
+            assertionFailure("Failed to create URL")
+            return nil
+        }
+        components.path = "/photos"
+        components.queryItems = [
+            URLQueryItem(name: "id", value: photoId)
+        ]
+        components.path += "/like"
+        
+        guard let url = components.url else {
+            assertionFailure("Failed to create URL")
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = isLike ? "DELETE" : "POST"
         return request
     }
     
@@ -110,7 +138,7 @@ final class ImagesListService {
                         let photo = Photo(
                             id: photoResult.id,
                             size: CGSize(width: photoResult.width, height: photoResult.height),
-                            createdAt: Date(),
+                            createdAt: dateFormatter.date(from: photoResult.created_at) ?? Date(),
                             welcomeDescription: photoResult.description,
                             thumbImageURL: photoResult.urls.thumb,
                             largeImageURL: photoResult.urls.full,
@@ -129,6 +157,40 @@ final class ImagesListService {
                 print("[ImagesListService.fetchPhotosNextPage] failure - \(error)")
             }
             self.task = nil
+        })
+        task.resume()
+    }
+    
+    func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let request = makeLikeRequest(photoId: photoId, isLike: isLike) else {
+            completion(.failure(ImageListServiceError.invalidRequest))
+            return
+        }
+        
+        let task = urlSession.objectTask(for: request, completion: { (result: Result<PhotoResult, Error>) in
+            switch result {
+            case .success(let photoResult):
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    if let index = self.photos.firstIndex(where: {$0.id == photoResult.id}) {
+                        let photo = self.photos[index]
+                        
+                        let newPhoto = Photo(
+                            id: photo.id,
+                            size: photo.size,
+                            createdAt: photo.createdAt,
+                            welcomeDescription: photo.welcomeDescription,
+                            thumbImageURL: photo.thumbImageURL,
+                            largeImageURL: photo.largeImageURL,
+                            isLiked: !photo.isLiked
+                        )
+                        self.photos[index] = newPhoto
+                    }
+                }
+            case .failure(let error):
+                print("[ImagesListService.changeLike] failure - \(error)")
+            }
+            
         })
         task.resume()
     }

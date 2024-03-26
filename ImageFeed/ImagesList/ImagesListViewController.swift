@@ -9,9 +9,6 @@ import UIKit
 
 final class ImagesListViewController: UIViewController {
     
-    //MARK: - IBOutlets
-    @IBOutlet private weak var tableView: UITableView!
-    
     //MARK: - Private Properties
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -20,25 +17,16 @@ final class ImagesListViewController: UIViewController {
         return formatter
     }()
     
+    private let tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.backgroundColor = .ypBlack
+        tableView.separatorStyle = .none
+        return tableView
+    }()
+    
     private var photos: [Photo] = []
     private let showSingleImage = "ShowSingleImage"
     private let imagesListService = ImagesListService.shared
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard segue.identifier == showSingleImage,
-              let viewController = segue.destination as? SingleImageViewController,
-              let indexPath = sender as? IndexPath else {
-            super.prepare(for: segue, sender: sender)
-            return
-        }
-        
-        guard let imageListCell = tableView.cellForRow(at: indexPath) as? ImagesListCell else {
-            return
-        }
-        
-        let image = imageListCell.cardImage.image
-        viewController.image = image
-    }
     
     override init(nibName: String?, bundle: Bundle?) {
         super.init(nibName: nibName, bundle: bundle)
@@ -57,6 +45,10 @@ final class ImagesListViewController: UIViewController {
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        tableView.delegate = self
+        tableView.dataSource = self
+        configureTableView()
         
         imagesListService.fetchPhotosNextPage()
         
@@ -80,6 +72,18 @@ final class ImagesListViewController: UIViewController {
             object: nil)
     }
     
+    private func configureTableView() {
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
+        
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+    }
+    
     @objc
     private func updateTableViewAnimated(notification: Notification) {
         let oldCount = photos.count
@@ -99,10 +103,18 @@ final class ImagesListViewController: UIViewController {
 //MARK: - UITableViewDelegate
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(
-        _ tableView: UITableView, 
+        _ tableView: UITableView,
         didSelectRowAt indexPath: IndexPath
     ) {
-        performSegue(withIdentifier: showSingleImage, sender: indexPath)
+        let singleVC = SingleImageViewController()
+        guard let imageListCell = tableView.cellForRow(at: indexPath) as? ImagesListCell else {
+            return
+        }
+        
+        let image = imageListCell.cardImage.image
+        singleVC.image = image
+        singleVC.modalPresentationStyle = .overFullScreen
+        present(singleVC, animated: true)
     }
     
     func tableView(
@@ -146,7 +158,7 @@ extension ImagesListViewController: UITableViewDataSource {
         }
         
         let url = URL(string: photos[indexPath.row].thumbImageURL)
-        let date = dateFormatter.string(from: photos[indexPath.row].createdAt ?? Date())
+        let date = dateFormatter.string(from: photos[indexPath.row].createdAt)
         let isLiked = photos[indexPath.row].isLiked
         
         imageListCell.cardImage.kf.indicatorType = .activity
