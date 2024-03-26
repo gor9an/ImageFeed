@@ -53,6 +53,7 @@ final class ImagesListService {
     private var task: URLSessionTask?
     private let urlSession = URLSession.shared
     
+//    MARK: - Private functions
     private func makeImageListRequest(page: Int) -> URLRequest? {
         guard var components = URLComponents(string: "\(DefaultBaseURL)") else {
             assertionFailure("Failed to create URL")
@@ -79,6 +80,7 @@ final class ImagesListService {
         return request
     }
     
+    //    MARK: - Public functions
     func fetchPhotosNextPage() {
         
         guard task == nil else {

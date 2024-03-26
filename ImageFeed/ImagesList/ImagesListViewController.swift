@@ -4,7 +4,7 @@
 //
 //  Created by Andrey Gordienko on 21.12.2023.
 //
-
+import Kingfisher
 import UIKit
 
 final class ImagesListViewController: UIViewController {
@@ -19,8 +19,10 @@ final class ImagesListViewController: UIViewController {
         formatter.locale = Locale(identifier: "ru_RUS")
         return formatter
     }()
-    private let photosName: [String] = Array(0...19).map{"\($0)"}
+    
+    private var photos: [Photo] = []
     private let showSingleImage = "ShowSingleImage"
+    private let imagesListService = ImagesListService.shared
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         guard segue.identifier == showSingleImage,
@@ -29,18 +31,69 @@ final class ImagesListViewController: UIViewController {
             super.prepare(for: segue, sender: sender)
             return
         }
-        let image = UIImage(named: photosName[indexPath.row])
+        
+        guard let imageListCell = tableView.cellForRow(at: indexPath) as? ImagesListCell else {
+            return
+        }
+        
+        let image = imageListCell.cardImage.image
         viewController.image = image
+    }
+    
+    override init(nibName: String?, bundle: Bundle?) {
+        super.init(nibName: nibName, bundle: bundle)
+        addObserver()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        addObserver()
+    }
+    
+    deinit {
+        removeObserver()
     }
     
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        imagesListService.fetchPhotosNextPage()
+        
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
         tableView.register(UINib(nibName: "ImagesListCell", bundle: nil), forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
     }
     
+    //MARK: - Private functions
+    private func addObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateTableViewAnimated(notification:)),
+            name: ImagesListService.didChangeNotification,
+            object: nil)
+    }
+    
+    private func removeObserver() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: ImagesListService.didChangeNotification,
+            object: nil)
+    }
+    
+    @objc
+    private func updateTableViewAnimated(notification: Notification) {
+        let oldCount = photos.count
+        let newCount = imagesListService.photos.count
+        photos = imagesListService.photos
+        if oldCount != newCount {
+            tableView.performBatchUpdates {
+                let indexPaths = (oldCount..<newCount).map { i in
+                    IndexPath(row: i, section: 0)
+                }
+                tableView.insertRows(at: indexPaths, with: .automatic)
+            } completion: { _ in }
+        }
+    }
 }
 
 //MARK: - UITableViewDelegate
@@ -56,16 +109,21 @@ extension ImagesListViewController: UITableViewDelegate {
         _ tableView: UITableView,
         heightForRowAt indexPath: IndexPath
     ) -> CGFloat {
-        guard let cardImage = UIImage(named: photosName[indexPath.row]) else {
-            return 0
-        }
-        
         let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
         let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
-        let imageWidth = cardImage.size.width
+        let imageWidth = photos[indexPath.row].size.width
         let scale = imageViewWidth / imageWidth
-        let cellHeight = cardImage.size.height * scale + imageInsets.top + imageInsets.bottom
+        let cellHeight = photos[indexPath.row].size.height * scale + imageInsets.top + imageInsets.bottom
         return cellHeight
+    }
+    
+    func tableView(
+        _ tableView: UITableView,
+        willDisplay cell: UITableViewCell,
+        forRowAt indexPath: IndexPath
+    ) {
+        guard indexPath.row + 1 == photos.count else { return }
+        imagesListService.fetchPhotosNextPage()
     }
 }
 
@@ -75,7 +133,7 @@ extension ImagesListViewController: UITableViewDataSource {
         _ tableView: UITableView,
         numberOfRowsInSection section: Int
     ) -> Int {
-        return photosName.count
+        return photos.count
     }
     
     func tableView(
@@ -87,21 +145,21 @@ extension ImagesListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        let image = UIImage(named: photosName[indexPath.row])
-        let date = dateFormatter.string(from: Date())
-        let isLiked = indexPath.row % 2 == 0
+        let url = URL(string: photos[indexPath.row].thumbImageURL)
+        let date = dateFormatter.string(from: photos[indexPath.row].createdAt ?? Date())
+        let isLiked = photos[indexPath.row].isLiked
         
-        imageListCell.configCell(image: image, date: date, isLiked: isLiked)
+        imageListCell.cardImage.kf.indicatorType = .activity
+        imageListCell.cardImage.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: "images_stub")
+        ) { _ in
+            tableView.reloadRows(at: [IndexPath(row: indexPath.row, section: 0)],
+                                 with: .automatic)
+        }
+        
+        imageListCell.configCell(date: date, isLiked: isLiked)
         
         return imageListCell
-    }
-    
-    func tableView(
-        _ tableView: UITableView,
-        willDisplay cell: UITableViewCell,
-        forRowAt indexPath: IndexPath
-    ) {
-//        guard indexPath.row + 1 == photos.count else { return }
-        //TODO: call fetchPhotosNextPage()
     }
 }

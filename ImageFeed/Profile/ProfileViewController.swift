@@ -23,8 +23,6 @@ final class ProfileViewController: UIViewController {
     private let profileService = ProfileService.shared
     private let profileImage = ProfileImageService.shared
     
-    private var profileImageServiceObserver: NSObjectProtocol?
-    
     override init(nibName: String?, bundle: Bundle?) {
         super.init(nibName: nibName, bundle: bundle)
         addObserver()
@@ -79,8 +77,9 @@ final class ProfileViewController: UIViewController {
     
     private func prepareImage(url: URL) {
         photoImageView.kf.indicatorType = .activity
-        photoImageView.kf.setImage(with: url,
-                                   placeholder: UIImage(named: "tab_profile_active.png")
+        photoImageView.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: "tab_profile_active.png")
         )
     }
     
