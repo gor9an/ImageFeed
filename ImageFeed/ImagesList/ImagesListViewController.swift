@@ -107,12 +107,9 @@ extension ImagesListViewController: UITableViewDelegate {
         didSelectRowAt indexPath: IndexPath
     ) {
         let singleVC = SingleImageViewController()
-        guard let imageListCell = tableView.cellForRow(at: indexPath) as? ImagesListCell else {
-            return
-        }
         
-        let image = imageListCell.cardImage.image
-        singleVC.image = image
+        let url = photos[indexPath.row].largeImageURL
+        singleVC.url = URL(string: url)
         singleVC.modalPresentationStyle = .overFullScreen
         present(singleVC, animated: true)
     }

@@ -5,16 +5,17 @@
 //  Created by Andrey Gordienko on 31.01.2024.
 //
 
+import Kingfisher
 import UIKit
 
 final class SingleImageViewController: UIViewController {
     //MARK: - Public Properties
-    var image: UIImage? {
+    var url: URL? {
         didSet {
             guard isViewLoaded else { return }
-            imageView.image = image
-            guard let image else { return }
-            rescaleAndCenterImageInScrollView(image: image)
+            scrollView.minimumZoomScale = 0.1
+            scrollView.maximumZoomScale = 1.25
+            setImage()
         }
     }
     
@@ -40,13 +41,11 @@ final class SingleImageViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         scrollView.delegate = self
-        configureView()
-        imageView.image = image
-        guard let image else { return }
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
         
-        rescaleAndCenterImageInScrollView(image: image)
+        setImage()
+        configureView()
     }
     
     @objc
@@ -57,9 +56,39 @@ final class SingleImageViewController: UIViewController {
     @objc
     private func didTapShareButton(_ sender: Any) {
         let activityViewController = UIActivityViewController(
-            activityItems: [image!],
+            activityItems: [imageView.image!],
             applicationActivities: nil)
         present(activityViewController, animated: true)
+    }
+    
+    private func setImage() {
+        UIBlockingProgressHUD.show()
+        imageView.kf.setImage(with: url) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            
+            guard let self = self else { return }
+            switch result {
+            case .success(let imageResult):
+                self.rescaleAndCenterImageInScrollView(image: imageResult.image)
+            case .failure:
+                self.showError()
+            }
+        }
+    }
+    
+    private func showError() {
+        let alert = UIAlertController(
+            title: "Что-то пошло не так.",
+            message: "Попробовать ещё раз?",
+            preferredStyle: .alert)
+        let exitAction = UIAlertAction(title: "Не надо", style: .cancel)
+        let retryAction = UIAlertAction(title: "Повторить", style: .default, handler: { [weak self] _ in
+            guard let self = self else { return }
+            self.setImage()
+        })
+        alert.addAction(exitAction)
+        alert.addAction(retryAction)
+        present(alert, animated: true, completion: nil)
     }
     
     private func configureView() {
@@ -76,7 +105,7 @@ final class SingleImageViewController: UIViewController {
         scrollView.addSubview(imageView)
         view.addSubview(shareButton)
         view.addSubview(backButton)
-
+        
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),

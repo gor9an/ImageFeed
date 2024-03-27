@@ -198,5 +198,9 @@ final class ImagesListService {
         })
         task.resume()
     }
+    
+    func clearPhotos() {
+        photos = []
+    }
 }
 

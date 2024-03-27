@@ -22,6 +22,7 @@ final class ProfileViewController: UIViewController {
     private var stackView = UIStackView()
     private let profileService = ProfileService.shared
     private let profileImage = ProfileImageService.shared
+    private let profileLogoutService = ProfileLogoutService.shared
     
     override init(nibName: String?, bundle: Bundle?) {
         super.init(nibName: nibName, bundle: bundle)
@@ -161,13 +162,12 @@ final class ProfileViewController: UIViewController {
     }
     
     @IBAction func didTapExitButton(_ sender: Any) {
-        nameLabel?.removeFromSuperview()
-        nicknameLabel?.removeFromSuperview()
-        descriptionLabel?.removeFromSuperview()
-        nameLabel = nil
-        nicknameLabel = nil
-        descriptionLabel = nil
-        photoImageView.image = UIImage(systemName: "person.crop.circle.fill")
-        photoImageView.tintColor = .gray
+        profileLogoutService.logout()
+        guard let window = UIApplication.shared.windows.first else {
+            assertionFailure("Invalid window configuration")
+            return
+        }
+        let splashVC = SplashViewController()
+        window.rootViewController = splashVC
     }
 }
