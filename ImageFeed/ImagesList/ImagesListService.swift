@@ -169,7 +169,8 @@ final class ImagesListService {
             return
         }
         
-        let task = urlSession.objectTask(for: request, completion: { [weak self] (result: Result<PhotoResult, Error>) in
+        let task = urlSession.data(for: request, completion: { [weak self] (result: Result<Data, Error>) in
+            guard let self = self else { return }
             switch result {
             case .success:
                 DispatchQueue.main.async { [weak self] in
@@ -188,9 +189,11 @@ final class ImagesListService {
                         )
                         self.photos[index] = newPhoto
                     }
+                    completion(.success(Void()))
                 }
             case .failure(let error):
                 print("[ImagesListService.changeLike] failure - \(error)")
+                completion(.failure(error))
             }
         })
         task.resume()
