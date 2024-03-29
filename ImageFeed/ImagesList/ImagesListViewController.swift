@@ -157,7 +157,7 @@ extension ImagesListViewController: UITableViewDataSource {
         imageListCell.delegate = self
         
         let url = URL(string: photos[indexPath.row].thumbImageURL)
-        let date = dateFormatter.string(from: photos[indexPath.row].createdAt)
+        
         let isLiked = photos[indexPath.row].isLiked
         
         imageListCell.cardImage.kf.indicatorType = .activity
@@ -169,7 +169,14 @@ extension ImagesListViewController: UITableViewDataSource {
                                  with: .automatic)
         }
         
-        imageListCell.configCell(date: date, isLiked: isLiked)
+        if let createdAt = photos[indexPath.row].createdAt {
+            let date = dateFormatter.string(from: createdAt)
+            imageListCell.configCell(date: date, isLiked: isLiked)
+        } else {
+            imageListCell.configCell(date: "", isLiked: isLiked)
+        }
+        
+        
         
         return imageListCell
     }

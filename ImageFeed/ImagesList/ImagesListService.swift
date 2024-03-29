@@ -18,7 +18,7 @@ enum ImageListServiceError: Error {
 struct Photo {
     let id: String
     let size: CGSize
-    let createdAt: Date
+    let createdAt: Date?
     let welcomeDescription: String?
     let thumbImageURL: String
     let largeImageURL: String
@@ -44,12 +44,7 @@ struct PhotoResult: Decodable {
 }
 
 final class ImagesListService {
-    private lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        formatter.locale = Locale(identifier: "ru_RUS")
-        return formatter
-    }()
+    private let dateFormatter = ISO8601DateFormatter()
     
     static let shared = ImagesListService()
     private init() { }
@@ -140,7 +135,7 @@ final class ImagesListService {
                         let photo = Photo(
                             id: photoResult.id,
                             size: CGSize(width: photoResult.width, height: photoResult.height),
-                            createdAt: dateFormatter.date(from: photoResult.created_at) ?? Date(),
+                            createdAt: dateFormatter.date(from: photoResult.created_at),
                             welcomeDescription: photoResult.description,
                             thumbImageURL: photoResult.urls.thumb,
                             largeImageURL: photoResult.urls.full,

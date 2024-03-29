@@ -162,12 +162,26 @@ final class ProfileViewController: UIViewController {
     }
     
     @IBAction func didTapExitButton(_ sender: Any) {
-        profileLogoutService.logout()
-        guard let window = UIApplication.shared.windows.first else {
-            assertionFailure("Invalid window configuration")
-            return
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Вы уверенны что хотите выйти?",
+            preferredStyle: .alert)
+        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            self.profileLogoutService.logout()
+            guard let window = UIApplication.shared.windows.first else {
+                assertionFailure("Invalid window configuration")
+                return
+            }
+            let splashVC = SplashViewController()
+            window.rootViewController = splashVC
         }
-        let splashVC = SplashViewController()
-        window.rootViewController = splashVC
+        let noAction = UIAlertAction(title: "Нет", style: .default)
+        
+        alert.addAction(yesAction)
+        alert.addAction(noAction)
+        
+        present(alert, animated: true)
+
     }
 }
