@@ -20,8 +20,8 @@ struct Photo {
     let size: CGSize
     let createdAt: Date?
     let welcomeDescription: String?
-    let thumbImageURL: String
-    let largeImageURL: String
+    let thumbImageURL: URL?
+    let largeImageURL: URL?
     let isLiked: Bool
 }
 
@@ -55,7 +55,7 @@ final class ImagesListService {
     private var lastLoadedPage: Int?
     private var task: URLSessionTask?
     private let urlSession = URLSession.shared
-    private let oAuthToken = OAuth2TokenStorage.shared.token
+    private let oAuthToken = OAuth2TokenStorage.shared
     
     //    MARK: - Private functions
     private func makeImageListRequest(page: Int) -> URLRequest? {
@@ -73,7 +73,7 @@ final class ImagesListService {
             return nil
         }
         
-        guard let token = oAuthToken else {
+        guard let token = oAuthToken.token else {
             assertionFailure("Failed to get token from storage")
             return nil
         }
@@ -97,7 +97,7 @@ final class ImagesListService {
         }
         
         var request = URLRequest(url: url)
-        guard let token = oAuthToken else {
+        guard let token = oAuthToken.token else {
             assertionFailure("Failed to get token from storage")
             return nil
         }
@@ -138,8 +138,8 @@ final class ImagesListService {
                             size: CGSize(width: photoResult.width, height: photoResult.height),
                             createdAt: dateFormatter.date(from: photoResult.created_at),
                             welcomeDescription: photoResult.description,
-                            thumbImageURL: photoResult.urls.thumb,
-                            largeImageURL: photoResult.urls.full,
+                            thumbImageURL: URL(string: photoResult.urls.thumb),
+                            largeImageURL: URL(string: photoResult.urls.full),
                             isLiked: photoResult.liked_by_user
                         )
                         self.lastLoadedPage = nextPageNumber

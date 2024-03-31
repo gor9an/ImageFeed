@@ -12,7 +12,7 @@ import UIKit
 final class SplashViewController: UIViewController {
     private let profileService = ProfileService.shared
     private let profileImage = ProfileImageService.shared
-    private let oAuthToken = OAuth2TokenStorage.shared.token
+    private let oAuthToken = OAuth2TokenStorage.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,8 +21,8 @@ final class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(false)
-        if let _ = oAuthToken {
-            guard let token = oAuthToken else {
+        if let _ = oAuthToken.token {
+            guard let token = oAuthToken.token else {
                 assertionFailure("Failed to get token from storage")
                 return
             }
@@ -91,7 +91,7 @@ final class SplashViewController: UIViewController {
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
-        guard let token = oAuthToken else {
+        guard let token = oAuthToken.token else {
             assertionFailure("Failed to get token from storage")
             return
         }

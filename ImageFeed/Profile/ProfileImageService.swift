@@ -28,11 +28,11 @@ final class ProfileImageService {
     private var task: URLSessionTask?
     private var lastUsername: String?
     private let urlSession = URLSession.shared
-    private let oAuthToken = OAuth2TokenStorage.shared.token
+    private let oAuthToken = OAuth2TokenStorage.shared
     
     private func makeProfileImageRequest(username: String) -> URLRequest? {
         guard
-            let token = oAuthToken else {
+            let token = oAuthToken.token else {
             assertionFailure("Token - nil")
             return nil
         }

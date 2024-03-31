@@ -109,7 +109,7 @@ extension ImagesListViewController: UITableViewDelegate {
         let singleVC = SingleImageViewController()
         
         let url = photos[indexPath.row].largeImageURL
-        singleVC.url = URL(string: url)
+        singleVC.url = url
         singleVC.modalPresentationStyle = .overFullScreen
         present(singleVC, animated: true)
     }
@@ -156,7 +156,7 @@ extension ImagesListViewController: UITableViewDataSource {
         
         imageListCell.delegate = self
         
-        let url = URL(string: photos[indexPath.row].thumbImageURL)
+        let url = photos[indexPath.row].thumbImageURL
         
         let isLiked = photos[indexPath.row].isLiked
         
