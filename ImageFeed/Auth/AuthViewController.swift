@@ -26,6 +26,7 @@ final class AuthViewController: UIViewController {
         
         return button
     }()
+    private var oAuthToken = OAuth2TokenStorage.shared.token
     
     weak var delegate: SplashViewController?
     
@@ -83,9 +84,9 @@ extension AuthViewController: WebViewViewControllerDelegate {
             
             switch result {
             case .success(let access_token):
-                let isSuccess = KeychainWrapper.standard.set(access_token, forKey: keyChainKey)
+                oAuthToken = access_token
                 
-                guard isSuccess else {
+                guard oAuthToken != nil else {
                     assertionFailure("Token has not been saved")
                     return
                 }

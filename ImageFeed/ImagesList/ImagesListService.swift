@@ -55,6 +55,7 @@ final class ImagesListService {
     private var lastLoadedPage: Int?
     private var task: URLSessionTask?
     private let urlSession = URLSession.shared
+    private let oAuthToken = OAuth2TokenStorage.shared.token
     
     //    MARK: - Private functions
     private func makeImageListRequest(page: Int) -> URLRequest? {
@@ -72,7 +73,7 @@ final class ImagesListService {
             return nil
         }
         
-        guard let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
+        guard let token = oAuthToken else {
             assertionFailure("Failed to get token from storage")
             return nil
         }
@@ -96,7 +97,7 @@ final class ImagesListService {
         }
         
         var request = URLRequest(url: url)
-        guard let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
+        guard let token = oAuthToken else {
             assertionFailure("Failed to get token from storage")
             return nil
         }
