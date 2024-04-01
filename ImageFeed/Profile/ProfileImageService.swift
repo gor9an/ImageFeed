@@ -28,10 +28,11 @@ final class ProfileImageService {
     private var task: URLSessionTask?
     private var lastUsername: String?
     private let urlSession = URLSession.shared
+    private let oAuthToken = OAuth2TokenStorage.shared
     
-    func makeProfileImageRequest(username: String) -> URLRequest? {
+    private func makeProfileImageRequest(username: String) -> URLRequest? {
         guard
-            let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
+            let token = oAuthToken.token else {
             assertionFailure("Token - nil")
             return nil
         }
@@ -101,5 +102,9 @@ final class ProfileImageService {
         })
         
         task.resume()
+    }
+    
+    func clearAvatarURL() {
+        avatarURL = nil
     }
 }

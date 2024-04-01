@@ -26,6 +26,7 @@ final class AuthViewController: UIViewController {
         
         return button
     }()
+    private var oAuthToken = OAuth2TokenStorage.shared
     
     weak var delegate: SplashViewController?
     
@@ -83,9 +84,9 @@ extension AuthViewController: WebViewViewControllerDelegate {
             
             switch result {
             case .success(let access_token):
-                let isSuccess = KeychainWrapper.standard.set(access_token, forKey: keyChainKey)
+                oAuthToken.token = access_token
                 
-                guard isSuccess else {
+                guard oAuthToken.token != nil else {
                     assertionFailure("Token has not been saved")
                     return
                 }
@@ -95,9 +96,11 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 let alert = UIAlertController(
                     title: "Что-то пошло не так(",
                     message: "Не удалось войти в систему",
-                    preferredStyle: .alert)
+                    preferredStyle: .alert
+                )
                 let action = UIAlertAction(title: "Ок", style: .default)
                 alert.addAction(action)
+                self.present(alert, animated: true, completion: nil)
             }
         })
     }

@@ -16,14 +16,17 @@ final class ProfileViewController: UIViewController {
         imageView.layer.masksToBounds = true
         return imageView
     }()
-    private var nameLabel: UILabel?
-    private var nicknameLabel: UILabel?
-    private var descriptionLabel: UILabel?
+    private var nameLabel = UILabel()
+    private var nicknameLabel = UILabel()
+    private var descriptionLabel = UILabel()
     private var stackView = UIStackView()
     private let profileService = ProfileService.shared
     private let profileImage = ProfileImageService.shared
+    private let profileLogoutService = ProfileLogoutService.shared
+    private let gradientAnimation = GradientAnimation.shared
     
-    private var profileImageServiceObserver: NSObjectProtocol?
+    private let gradient = CAGradientLayer()
+    private var animationLayers: [CALayer] = []
     
     override init(nibName: String?, bundle: Bundle?) {
         super.init(nibName: nibName, bundle: bundle)
@@ -78,9 +81,12 @@ final class ProfileViewController: UIViewController {
     }
     
     private func prepareImage(url: URL) {
-        photoImageView.kf.indicatorType = .activity
-        photoImageView.kf.setImage(with: url,
-                                   placeholder: UIImage(named: "tab_profile_active.png")
+        photoImageView.kf.setImage(
+            with: url,
+            completionHandler: { [weak self] _ in
+                guard let self = self else { return }
+                self.gradientAnimation.removeFromSuperLayer(views: [self.photoImageView, self.nameLabel, self.nicknameLabel, self.descriptionLabel])
+            }
         )
     }
     
@@ -105,16 +111,11 @@ final class ProfileViewController: UIViewController {
             photoImageView.widthAnchor.constraint(equalToConstant: 70),
             photoImageView.heightAnchor.constraint(equalToConstant: 70),
         ])
+        
+        gradientAnimation.addGradient(view: photoImageView, width: 70, height: 70, cornerRadius: 35)
     }
     
     private func configureLabels(name: String, loginName: String, bio: String) {
-        nameLabel = UILabel()
-        nicknameLabel = UILabel()
-        descriptionLabel = UILabel()
-        guard let nameLabel = nameLabel else { return }
-        guard let nicknameLabel = nicknameLabel else { return }
-        guard let descriptionLabel = descriptionLabel else { return }
-        
         stackView.spacing = 8
         stackView.axis = .vertical
         stackView.alignment = .fill
@@ -144,6 +145,10 @@ final class ProfileViewController: UIViewController {
             stackView.topAnchor.constraint(equalTo: photoImageView.bottomAnchor, constant: 8),
             stackView.leadingAnchor.constraint(equalTo: photoImageView.leadingAnchor),
         ])
+        
+        gradientAnimation.addGradient(view: nameLabel, width: nameLabel.intrinsicContentSize.width, height: nameLabel.intrinsicContentSize.height, cornerRadius: 13)
+        gradientAnimation.addGradient(view: nicknameLabel, width: nicknameLabel.intrinsicContentSize.width, height: nicknameLabel.intrinsicContentSize.height, cornerRadius: 8)
+        gradientAnimation.addGradient(view: descriptionLabel, width: descriptionLabel.intrinsicContentSize.width, height: descriptionLabel.intrinsicContentSize.height, cornerRadius: 8)
     }
     
     private func configureExitButton() {
@@ -162,13 +167,25 @@ final class ProfileViewController: UIViewController {
     }
     
     @IBAction func didTapExitButton(_ sender: Any) {
-        nameLabel?.removeFromSuperview()
-        nicknameLabel?.removeFromSuperview()
-        descriptionLabel?.removeFromSuperview()
-        nameLabel = nil
-        nicknameLabel = nil
-        descriptionLabel = nil
-        photoImageView.image = UIImage(systemName: "person.crop.circle.fill")
-        photoImageView.tintColor = .gray
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Вы уверенны что хотите выйти?",
+            preferredStyle: .alert)
+        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            self.profileLogoutService.logout()
+            guard let window = UIApplication.shared.windows.first else {
+                assertionFailure("Invalid window configuration")
+                return
+            }
+            let splashVC = SplashViewController()
+            window.rootViewController = splashVC
+        }
+        let noAction = UIAlertAction(title: "Нет", style: .default)
+        
+        alert.addAction(yesAction)
+        alert.addAction(noAction)
+        
+        present(alert, animated: true)
     }
 }

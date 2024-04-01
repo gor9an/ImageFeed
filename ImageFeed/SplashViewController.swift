@@ -12,6 +12,7 @@ import UIKit
 final class SplashViewController: UIViewController {
     private let profileService = ProfileService.shared
     private let profileImage = ProfileImageService.shared
+    private let oAuthToken = OAuth2TokenStorage.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,8 +21,8 @@ final class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(false)
-        if let _ = KeychainWrapper.standard.string(forKey: keyChainKey) {
-            guard let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
+        if let _ = oAuthToken.token {
+            guard let token = oAuthToken.token else {
                 assertionFailure("Failed to get token from storage")
                 return
             }
@@ -55,7 +56,7 @@ final class SplashViewController: UIViewController {
             return
         }
         
-        let tabBarController = UIStoryboard(name: "Main", bundle: .main).instantiateViewController(identifier: "TabBarViewController")
+        let tabBarController = TabBarController()
         window.rootViewController = tabBarController
     }
     
@@ -71,6 +72,7 @@ final class SplashViewController: UIViewController {
                 self.switchToTabBarController()
             case .failure(let error):
                 print(error)
+                showError()
             }
         }))
     }
@@ -85,12 +87,32 @@ final class SplashViewController: UIViewController {
             
         })
     }
+    
+    private func showError() {
+        let alert = UIAlertController(
+            title: "Что-то пошло не так.",
+            message: "Попробовать ещё раз?",
+            preferredStyle: .alert)
+        let exitAction = UIAlertAction(title: "Не надо", style: .cancel)
+        let retryAction = UIAlertAction(title: "Повторить", style: .default, handler: { [weak self] _ in
+            guard let self = self else { return }
+            guard let token = oAuthToken.token else {
+                assertionFailure("Failed to get token from storage")
+                return
+            }
+            
+            self.fetchProfile(token)
+        })
+        alert.addAction(exitAction)
+        alert.addAction(retryAction)
+        present(alert, animated: true, completion: nil)
+    }
 }
 //MARK: - AuthViewControllerDelegate
 extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
-        guard let token = KeychainWrapper.standard.string(forKey: keyChainKey) else {
+        guard let token = oAuthToken.token else {
             assertionFailure("Failed to get token from storage")
             return
         }

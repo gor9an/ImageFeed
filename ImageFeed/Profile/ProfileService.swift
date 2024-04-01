@@ -94,4 +94,8 @@ final class ProfileService {
         
         task.resume()
     }
+    
+    func cleanProfile() {
+        profile = nil
+    }
 }
