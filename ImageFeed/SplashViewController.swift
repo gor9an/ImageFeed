@@ -72,6 +72,7 @@ final class SplashViewController: UIViewController {
                 self.switchToTabBarController()
             case .failure(let error):
                 print(error)
+                showError()
             }
         }))
     }
@@ -85,6 +86,26 @@ final class SplashViewController: UIViewController {
             }
             
         })
+    }
+    
+    private func showError() {
+        let alert = UIAlertController(
+            title: "Что-то пошло не так.",
+            message: "Попробовать ещё раз?",
+            preferredStyle: .alert)
+        let exitAction = UIAlertAction(title: "Не надо", style: .cancel)
+        let retryAction = UIAlertAction(title: "Повторить", style: .default, handler: { [weak self] _ in
+            guard let self = self else { return }
+            guard let token = oAuthToken.token else {
+                assertionFailure("Failed to get token from storage")
+                return
+            }
+            
+            self.fetchProfile(token)
+        })
+        alert.addAction(exitAction)
+        alert.addAction(retryAction)
+        present(alert, animated: true, completion: nil)
     }
 }
 //MARK: - AuthViewControllerDelegate

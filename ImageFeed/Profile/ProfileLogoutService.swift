@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Kingfisher
 import SwiftKeychainWrapper
 import WebKit
 
@@ -26,6 +27,9 @@ final class ProfileLogoutService {
     
     private func cleanCookies() {
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        let cache = ImageCache.default
+        cache.clearMemoryCache()
+        cache.clearDiskCache { print("Done") }
         WKWebsiteDataStore.default().fetchDataRecords(
             ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
             completionHandler: { records in

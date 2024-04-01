@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B0506D032BBA74FC001DC4D0 /* GradientAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0506D022BBA74FC001DC4D0 /* GradientAnimation.swift */; };
 		B05932FE2B643618006F838B /* ImagesListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = B05932FD2B643618006F838B /* ImagesListCell.xib */; };
 		B05933012B6584AB006F838B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05933002B6584AB006F838B /* ProfileViewController.swift */; };
 		B05933032B6967CF006F838B /* SingleImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05933022B6967CF006F838B /* SingleImageViewController.swift */; };
@@ -36,6 +37,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B0506D022BBA74FC001DC4D0 /* GradientAnimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientAnimation.swift; sourceTree = "<group>"; };
 		B05932FD2B643618006F838B /* ImagesListCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ImagesListCell.xib; sourceTree = "<group>"; };
 		B05933002B6584AB006F838B /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		B05933022B6967CF006F838B /* SingleImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleImageViewController.swift; sourceTree = "<group>"; };
@@ -77,6 +79,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B0506D002BBA74BA001DC4D0 /* Animation */ = {
+			isa = PBXGroup;
+			children = (
+				B0506D022BBA74FC001DC4D0 /* GradientAnimation.swift */,
+			);
+			path = Animation;
+			sourceTree = "<group>";
+		};
 		B071B6592B9B5C4F001D05F7 /* ProgressHud */ = {
 			isa = PBXGroup;
 			children = (
@@ -155,6 +165,7 @@
 				B0A0CE562B488B8100CD84B3 /* ImagesList */,
 				B09544E42B74D23B00D8BBA5 /* Profile */,
 				B09544E52B74D24B00D8BBA5 /* SingleImage */,
+				B0506D002BBA74BA001DC4D0 /* Animation */,
 				B08F84DE2B7FC40100D19CFB /* Constants.swift */,
 				B0A124932B8A9FE400B060BB /* URLSession+data.swift */,
 				B0DCA0F52B33DD16008906A7 /* Assets.xcassets */,
@@ -250,6 +261,7 @@
 				B0A0CE552B4886FA00CD84B3 /* ImagesListCell.swift in Sources */,
 				B0A124972B8AA5C500B060BB /* OAuthTokenResponseBody.swift in Sources */,
 				B05933012B6584AB006F838B /* ProfileViewController.swift in Sources */,
+				B0506D032BBA74FC001DC4D0 /* GradientAnimation.swift in Sources */,
 				B0DCA0ED2B33DD13008906A7 /* AppDelegate.swift in Sources */,
 				B0912B2C2BAE3FB400CB1121 /* TabBarController.swift in Sources */,
 				B09BF6D22BA07D67007F30B7 /* ProfileImageService.swift in Sources */,
