@@ -16,10 +16,16 @@ public protocol WebViewPresenterProtocol: AnyObject {
 
 final class WebViewPresenter: WebViewPresenterProtocol {
     weak var view: WebViewViewControllerProtocol?
+    var authHelper: AuthHelperProtocol
     private let authConfiguration = AuthConfiguration.standard
     
+    init(authHelper: AuthHelperProtocol) {
+        self.authHelper = authHelper
+    }
+    
     func viewDidLoad() {
-        loadWebView()
+        guard let request = authHelper.authRequest() else { return }
+        view?.load(request: request)
         didUpdateProgressValue(0)
     }
     
@@ -36,39 +42,6 @@ final class WebViewPresenter: WebViewPresenterProtocol {
     }
     
     func code(from url: URL) -> String? {
-        
-        if
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == "/oauth/authorize/native",
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: {$0.name == "code"})
-        {
-            return codeItem.value
-        } else {
-            return nil
-        }
-        
-    }
-    
-    private func loadWebView() {
-        guard var urlComponents = URLComponents(string: authConfiguration.authURLString)
-        else {
-            assertionFailure("Failed to create URL")
-            return
-        }
-        
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: authConfiguration.accessKey),
-            URLQueryItem(name: "redirect_uri", value: authConfiguration.redirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: authConfiguration.accessScope),
-        ]
-        guard let url = urlComponents.url else {
-            assertionFailure("Failed to create URL")
-            return
-        }
-        
-        let request = URLRequest(url: url)
-        view?.load(request: request)
+        authHelper.code(from: url)
     }
 }
