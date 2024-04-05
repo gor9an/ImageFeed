@@ -34,9 +34,10 @@ final class ProfileService {
     private var task: URLSessionTask?
     private var lastToken: String?
     private let session = URLSession.shared
+    private let authConfiguration = AuthConfiguration.standard
     
     func makeProfileInfoRequest(token: String) -> URLRequest? {
-        guard var components = URLComponents(string: "\(DefaultBaseURL)") else {
+        guard var components = URLComponents(string: "\(authConfiguration.defaultBaseURL)") else {
             assertionFailure("Failed to create URL")
             return nil
         }

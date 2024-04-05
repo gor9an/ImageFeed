@@ -56,10 +56,11 @@ final class ImagesListService {
     private var task: URLSessionTask?
     private let urlSession = URLSession.shared
     private let oAuthToken = OAuth2TokenStorage.shared
+    private let authConfiguration = AuthConfiguration.standard
     
     //    MARK: - Private functions
     private func makeImageListRequest(page: Int) -> URLRequest? {
-        guard var components = URLComponents(string: "\(DefaultBaseURL)") else {
+        guard var components = URLComponents(string: "\(authConfiguration.defaultBaseURL)") else {
             assertionFailure("Failed to create URL")
             return nil
         }
@@ -85,7 +86,7 @@ final class ImagesListService {
     }
     
     private func makeLikeRequest(photoId: String, isLike: Bool) -> URLRequest? {
-        guard var components = URLComponents(string: "\(DefaultBaseURL)") else {
+        guard var components = URLComponents(string: "\(authConfiguration.defaultBaseURL)") else {
             assertionFailure("Failed to create URL")
             return nil
         }

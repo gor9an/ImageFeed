@@ -29,6 +29,7 @@ final class ProfileImageService {
     private var lastUsername: String?
     private let urlSession = URLSession.shared
     private let oAuthToken = OAuth2TokenStorage.shared
+    private let authConfiguration = AuthConfiguration.standard
     
     private func makeProfileImageRequest(username: String) -> URLRequest? {
         guard
@@ -37,7 +38,7 @@ final class ProfileImageService {
             return nil
         }
         
-        guard var components = URLComponents(string: "\(DefaultBaseURL)") else {
+        guard var components = URLComponents(string: "\(authConfiguration.defaultBaseURL)") else {
             assertionFailure("Failed to create URL")
             return nil
         }
