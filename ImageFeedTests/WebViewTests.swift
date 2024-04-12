@@ -1,6 +1,6 @@
 //
-//  ImageFeedTests.swift
-//  ImageFeedTests
+//  WebViewTests.swift
+//  WebViewTests
 //
 //  Created by Andrey Gordienko on 09.04.2024.
 //

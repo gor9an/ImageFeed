@@ -8,7 +8,15 @@
 import Kingfisher
 import UIKit
 
-final class ProfileViewController: UIViewController {
+public protocol ProfileViewControllerProtocol: AnyObject {
+    var presenter: ProfilePresenterProtocol? { get set }
+    var profile: Profile? { get set }
+    func prepareImage(url: URL)
+}
+
+final class ProfileViewController: UIViewController,
+                                   ProfileViewControllerProtocol {
+    var presenter: ProfilePresenterProtocol?
     //MARK: - Private Properties
     private var photoImageView: UIImageView = {
         let imageView = UIImageView()
@@ -20,13 +28,12 @@ final class ProfileViewController: UIViewController {
     private var nicknameLabel = UILabel()
     private var descriptionLabel = UILabel()
     private var stackView = UIStackView()
-    private let profileService = ProfileService.shared
-    private let profileImage = ProfileImageService.shared
     private let profileLogoutService = ProfileLogoutService.shared
     private let gradientAnimation = GradientAnimation.shared
     
     private let gradient = CAGradientLayer()
     private var animationLayers: [CALayer] = []
+    var profile: Profile?
     
     override init(nibName: String?, bundle: Bundle?) {
         super.init(nibName: nibName, bundle: bundle)
@@ -47,15 +54,10 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         
         configurePhotoImageView()
-        
-        guard let profile = profileService.profile else {
+        presenter?.setAvatar()
+        profile = presenter?.getProfile()
+        guard let profile else {
             return
-        }
-        
-        if let avatarURL = ProfileImageService.shared.avatarURL,
-           let url = URL(string: avatarURL) {
-            
-            prepareImage(url: url)
         }
         
         configureLabels(
@@ -80,7 +82,7 @@ final class ProfileViewController: UIViewController {
             object: nil)
     }
     
-    private func prepareImage(url: URL) {
+    func prepareImage(url: URL) {
         photoImageView.kf.setImage(
             with: url,
             completionHandler: { [weak self] _ in
@@ -92,13 +94,8 @@ final class ProfileViewController: UIViewController {
     
     @objc
     private func updateAvatar(notification: Notification) {
-        guard
-            isViewLoaded,
-            let userInfo = notification.userInfo,
-            let profileImageURL = userInfo["URL"] as? String,
-            let url = URL(string: profileImageURL) else { return }
-        
-        prepareImage(url: url)
+        guard isViewLoaded else { return }
+        presenter?.updateAvatar(notification: notification)
     }
     
     private func configurePhotoImageView() {
