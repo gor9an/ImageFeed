@@ -16,9 +16,17 @@ public protocol ProfilePresenterProtocol: AnyObject {
 
 final class ProfilePresenter: ProfilePresenterProtocol {
     weak var view: ProfileViewControllerProtocol?
-    private let profileImage = ProfileImageService.shared
-    private let profileService = ProfileService.shared
-
+    private let profileImage: ProfileImageServiceProtocol
+    private let profileService: ProfileServiceProtocol
+    
+    init(
+        profileService: ProfileServiceProtocol = ProfileService.shared,
+        profileImage: ProfileImageServiceProtocol = ProfileImageService.shared
+    ) {
+        self.profileService = profileService
+        self.profileImage = profileImage
+    }
+    
     func updateAvatar(notification: Notification) {
         guard
             let userInfo = notification.userInfo,

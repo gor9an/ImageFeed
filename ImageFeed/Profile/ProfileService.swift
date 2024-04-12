@@ -7,6 +7,11 @@
 
 import Foundation
 
+public protocol ProfileServiceProtocol {
+    var profile: Profile? { get }
+    func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void)
+}
+
 enum ProfileServiceError: Error {
     case invalidRequest
 }
@@ -25,7 +30,7 @@ public struct Profile {
     let bio: String
 }
 
-final class ProfileService {
+final class ProfileService: ProfileServiceProtocol {
     static let shared = ProfileService()
     private init() { }
     

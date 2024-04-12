@@ -24,6 +24,7 @@ final class ProfileLogoutService {
         profileService.cleanProfile()
         profileImageService.clearAvatarURL()
         imagesListService.clearPhotos()
+        cleanKeychain()
     }
     
     private func cleanCookies() {
@@ -38,6 +39,8 @@ final class ProfileLogoutService {
                     WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
                 }
             })
+    }
+    func cleanKeychain() {
         KeychainWrapper.standard.remove(forKey: KeychainWrapper.Key(rawValue: authConfiguration.keyChainKey))
     }
 }
