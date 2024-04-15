@@ -157,13 +157,16 @@ final class ProfileViewController: UIViewController,
         exitButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(exitButton)
         
+        exitButton.accessibilityIdentifier = "ProfileExitButton"
+        
         NSLayoutConstraint.activate([
             exitButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             exitButton.centerYAnchor.constraint(equalTo: photoImageView.centerYAnchor),
         ])
     }
     
-    @IBAction func didTapExitButton(_ sender: Any) {
+    @objc
+    func didTapExitButton(_ sender: Any) {
         let alert = UIAlertController(
             title: "Пока, пока!",
             message: "Вы уверенны что хотите выйти?",
