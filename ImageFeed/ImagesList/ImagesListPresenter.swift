@@ -13,7 +13,7 @@ public protocol ImagesListPresenterProtocol: AnyObject {
     func updateTableView()
     func didLikeButtonTapped(_ index: Int, _ cell: ImagesListCell)
     func getPhotoAtIndex(_ index: Int) -> Photo?
-    func willDisplay(indexPath: IndexPath)
+    func willDisplay(indexPath: Int)
     func getPhotosCount() -> Int
     func viewDidLoad()
 }
@@ -75,8 +75,8 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
         })
     }
     
-    func willDisplay(indexPath: IndexPath) {
-        guard indexPath.row + 1 == photos.count else { return }
+    func willDisplay(indexPath: Int) {
+        guard indexPath + 1 == photos.count else { return }
         imagesListService.fetchPhotosNextPage()
     }
     

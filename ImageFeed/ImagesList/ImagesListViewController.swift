@@ -127,7 +127,7 @@ extension ImagesListViewController: UITableViewDelegate {
         willDisplay cell: UITableViewCell,
         forRowAt indexPath: IndexPath
     ) {
-        presenter?.willDisplay(indexPath: indexPath)
+        presenter?.willDisplay(indexPath: indexPath.row)
     }
 }
 
