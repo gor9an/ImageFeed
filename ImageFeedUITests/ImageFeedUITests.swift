@@ -72,7 +72,7 @@ final class ImageFeedUITests: XCTestCase {
         let cell = tablesQuery.children(matching: .cell).element(boundBy: 0)
         XCTAssertTrue(cell.waitForExistence(timeout: 5))
         
-        app.tabBars.element(boundBy: 1).tap()
+        app.tabBars.buttons.element(boundBy: 1).tap()
         XCTAssertTrue(app.staticTexts["Andrey Gordienko"].exists)
         XCTAssertTrue(app.staticTexts["@gordddan"].exists)
         
