@@ -30,6 +30,9 @@ final class ImageFeedUITests: XCTestCase {
         let passwordTextField = webView.descendants(matching: .secureTextField).element
         XCTAssertTrue(passwordTextField.waitForExistence(timeout: 5))
         passwordTextField.tap()
+        sleep(3)
+        
+        passwordTextField.tap()
         passwordTextField.typeText("")
         webView.swipeUp()
         
@@ -77,7 +80,7 @@ final class ImageFeedUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["@gordddan"].exists)
         
         app.buttons["ProfileExitButton"].tap()
-
+        
         app.alerts["Пока, пока!"].scrollViews.otherElements.buttons["Да"].tap()
     }
 }
