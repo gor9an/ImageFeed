@@ -41,6 +41,6 @@ final class ProfileLogoutService {
             })
     }
     func cleanKeychain() {
-        KeychainWrapper.standard.remove(forKey: KeychainWrapper.Key(rawValue: authConfiguration.keyChainKey))
+        KeychainWrapper.standard.removeAllKeys()
     }
 }

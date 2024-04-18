@@ -22,15 +22,16 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     weak var view: ImagesListViewControllerProtocol?
     private var photos: [Photo] = []
     private let imagesListService: ImagesListServiceProtocol
+    private let UITestMode = "\(ProcessInfo.processInfo.arguments)".contains("XCTestDevices")
     
-    init (imagesListService: ImagesListServiceProtocol = ImagesListService.shared) {
+    init (imagesListService: ImagesListServiceProtocol) {
         self.imagesListService = imagesListService
     }
-
+    
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd MMMM yyyy"
-        formatter.locale = Locale(identifier: "ru_RUS")
+//        formatter.locale = Locale(identifier: "ru_RUS")
         return formatter
     }()
     
@@ -58,7 +59,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     func didLikeButtonTapped(_ index: Int, _ cell: ImagesListCell) {
         guard let photo = getPhotoAtIndex(index) else { return }
         
-        UIBlockingProgressHUD.show()
+        view?.showUIBlockingProgressHUD()
         imagesListService.changeLike(photoId: photo.id, isLike: photo.isLiked, { [weak self] result in
             guard let self = self else { return }
             
@@ -67,9 +68,9 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
                 let photos = imagesListService.photos
                 self.photos = photos
                 cell.setIsLiked(isLiked: !photo.isLiked)
-                UIBlockingProgressHUD.dismiss()
+                view?.dismissUIBlockingProgressHUD()
             case .failure(let error):
-                UIBlockingProgressHUD.dismiss()
+                view?.dismissUIBlockingProgressHUD()
                 view?.showAlert(error: error)
             }
         })
@@ -77,6 +78,9 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     
     func willDisplay(indexPath: Int) {
         guard indexPath + 1 == photos.count else { return }
+        if UITestMode && imagesListService.photos.count >= 10 {
+            return
+        }
         imagesListService.fetchPhotosNextPage()
     }
     

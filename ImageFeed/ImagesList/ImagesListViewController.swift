@@ -11,11 +11,14 @@ public protocol ImagesListViewControllerProtocol: AnyObject {
     var presenter: ImagesListPresenterProtocol? { get set }
     func showAlert(error: Error)
     func updateTable(oldCount: Int, newCount: Int)
+    func showUIBlockingProgressHUD()
+    func dismissUIBlockingProgressHUD()
 }
 
 final class ImagesListViewController: UIViewController,
                                       ImagesListViewControllerProtocol {
     var presenter: ImagesListPresenterProtocol?
+
     //MARK: - Private Properties
     private let tableView: UITableView = {
         let tableView = UITableView()
@@ -92,6 +95,14 @@ final class ImagesListViewController: UIViewController,
             }
             tableView.insertRows(at: indexPaths, with: .automatic)
         } completion: { _ in }
+    }
+    
+    func showUIBlockingProgressHUD() {
+        UIBlockingProgressHUD.show()
+    }
+    
+    func dismissUIBlockingProgressHUD() {
+        UIBlockingProgressHUD.dismiss()
     }
 }
 

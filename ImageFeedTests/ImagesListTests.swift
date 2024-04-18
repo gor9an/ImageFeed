@@ -18,11 +18,13 @@ final class ImagesListServiceModel: ImagesListServiceProtocol {
     }
     
     func changeLike(photoId: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void) { }
-    
-    
 }
 
 final class ImagesListViewControllerSpy: ImagesListViewControllerProtocol {
+    func showUIBlockingProgressHUD() { }
+    
+    func dismissUIBlockingProgressHUD() { }
+    
     var presenter: ImagesListPresenterProtocol?
     var updateTableCalled = false
     
@@ -34,6 +36,7 @@ final class ImagesListViewControllerSpy: ImagesListViewControllerProtocol {
 }
 
 final class ImagesListPresenterSpy: ImagesListPresenterProtocol {
+
     var view: ImagesListViewControllerProtocol?
     var updateTableCalled = false
     var willDisplayCalled = false

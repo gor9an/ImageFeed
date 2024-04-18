@@ -17,7 +17,8 @@ final class TabBarController: UITabBarController {
         self.tabBar.standardAppearance = appearance
         
         let imagesListViewController = ImagesListViewController()
-        let imagesListPresenter = ImagesListPresenter()
+        let imagesListService = ImagesListService.shared
+        let imagesListPresenter = ImagesListPresenter(imagesListService: imagesListService)
         imagesListViewController.presenter = imagesListPresenter
         imagesListPresenter.view = imagesListViewController
         imagesListViewController.tabBarItem = UITabBarItem(

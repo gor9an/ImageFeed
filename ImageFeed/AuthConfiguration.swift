@@ -21,7 +21,14 @@ enum Constants {
 
 struct AuthConfiguration {
     static var standard: AuthConfiguration {
-        return AuthConfiguration(accessKey: Constants.accessKey, secretKey: Constants.secretKey, redirectURI: Constants.redirectURI, accessScope: Constants.accessScope, defaultBaseURL: Constants.defaultBaseURL, authURLString: Constants.unsplashAuthorizeURLString, getTokenUrl: Constants.unsplashUrl, keyChainKey: Constants.keyChainKey)
+        return AuthConfiguration(accessKey: Constants.accessKey, 
+                                 secretKey: Constants.secretKey,
+                                 redirectURI: Constants.redirectURI,
+                                 accessScope: Constants.accessScope,
+                                 defaultBaseURL: Constants.defaultBaseURL,
+                                 authURLString: Constants.unsplashAuthorizeURLString,
+                                 getTokenUrl: Constants.unsplashUrl,
+                                 keyChainKey: Constants.keyChainKey)
     }
     let accessKey: String
     let secretKey: String
