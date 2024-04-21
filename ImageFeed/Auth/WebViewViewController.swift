@@ -8,23 +8,31 @@
 import UIKit
 import WebKit
 
+public protocol WebViewViewControllerProtocol: AnyObject {
+    var presenter: WebViewPresenterProtocol? { get set }
+    func load(request: URLRequest)
+    func setProgressValue(_ newValue: Float)
+    func setProgressHidden(_ isHidden: Bool)
+}
+
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
 
-final class WebViewViewController: UIViewController {
+final class WebViewViewController: UIViewController,
+                                   WebViewViewControllerProtocol {
+    
+    var presenter: WebViewPresenterProtocol?
     private var webView = WKWebView()
     private let progressView = UIProgressView()
     private var estimatedProgressObservation: NSKeyValueObservation?
     private let backButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(UIImage(named: "login_back_button"), for: .normal)
-        
         return button
     }()
-    
     weak var delegate: WebViewViewControllerDelegate?
     
     override func viewDidLoad() {
@@ -33,23 +41,31 @@ final class WebViewViewController: UIViewController {
         estimatedProgressObservation = webView.observe(
             \.estimatedProgress,
              options: [.new],
-            changeHandler: { [weak self] _, _ in
-                guard let self = self else { return }
-                self.updateProgress()
-            })
+             changeHandler: { [weak self] _, _ in
+                 guard let self = self else { return }
+                 self.presenter?.didUpdateProgressValue(webView.estimatedProgress)
+             })
         
         configureWebView()
-        loadWebView()
-        
         webView.navigationDelegate = self
+        webView.accessibilityIdentifier = "UnsplashWebView"
+        presenter?.viewDidLoad()
+    }
+    
+    //    MARK: - Public Functions
+    func load(request: URLRequest) {
+        webView.load(request)
+    }
+    
+    func setProgressValue(_ newValue: Float) {
+        progressView.progress = newValue
+    }
+    
+    func setProgressHidden(_ isHidden: Bool) {
+        progressView.isHidden = isHidden
     }
     
     //    MARK: - Private Functions
-    private func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
-    }
-    
     private func configureWebView() {
         backButton.addTarget(self, action: #selector(Self.didTapBackButton), for: .touchUpInside)
         webView.backgroundColor = .ypWhite
@@ -102,42 +118,11 @@ extension WebViewViewController: WKNavigationDelegate {
     }
     
     private func code(from navigationAction: WKNavigationAction) -> String? {
-        if
-            let url = navigationAction.request.url,
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == "/oauth/authorize/native",
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: {$0.name == "code"}) 
-        {
-            return codeItem.value
+        if let url = navigationAction.request.url {
+            return presenter?.code(from: url)
         } else {
             return nil
         }
-    }
-}
-
-//MARK: - extension for WebView - func loadWebView
-private extension WebViewViewController {
-    private func loadWebView() {
-        guard var urlComponents = URLComponents(string: UnsplashAuthorizeURLString)
-        else {
-            assertionFailure("Failed to create URL")
-            return
-        }
-        
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: AccessKey),
-            URLQueryItem(name: "redirect_uri", value: RedirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: AccessScope),
-        ]
-        guard let url = urlComponents.url else {
-            assertionFailure("Failed to create URL")
-            return
-        }
-        
-        let request = URLRequest(url: url)
-        webView.load(request)
     }
 }
 

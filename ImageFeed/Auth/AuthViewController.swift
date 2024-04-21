@@ -23,6 +23,7 @@ final class AuthViewController: UIViewController {
         button.titleLabel?.font = .boldSystemFont(ofSize: 17)
         button.backgroundColor = .ypWhite
         button.layer.cornerRadius = 16
+        button.accessibilityIdentifier = "Authenticate"
         
         return button
     }()
@@ -62,7 +63,14 @@ final class AuthViewController: UIViewController {
     @objc
     private func didTapLoginButton() {
         let webVVC = WebViewViewController()
+        let authHelper = AuthHelper()
+        let webVP = WebViewPresenter(authHelper: authHelper)
+        
         webVVC.delegate = self
+        
+        webVVC.presenter = webVP
+        webVP.view = webVVC
+        
         webVVC.modalPresentationStyle = .overFullScreen
         present(webVVC, animated: true, completion: nil)
     }

@@ -18,17 +18,18 @@ final class OAuth2Service {
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
     private var lastCode: String?
+    private let authConfiguration = AuthConfiguration.standard
     
     func makeOAuthTokenRequest(code: String) -> URLRequest? {
-        guard var urlComponents = URLComponents(string: UnsplashUrl) else {
+        guard var urlComponents = URLComponents(string: authConfiguration.getTokenUrl) else {
             assertionFailure("Failed to create URL")
             return nil
         }
         
         urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: AccessKey),
-            URLQueryItem(name: "client_secret", value: SecretKey),
-            URLQueryItem(name: "redirect_uri", value: RedirectURI),
+            URLQueryItem(name: "client_id", value: authConfiguration.accessKey),
+            URLQueryItem(name: "client_secret", value: authConfiguration.secretKey),
+            URLQueryItem(name: "redirect_uri", value: authConfiguration.redirectURI),
             URLQueryItem(name: "code", value: code),
             URLQueryItem(name: "grant_type", value: "authorization_code"),
         ]

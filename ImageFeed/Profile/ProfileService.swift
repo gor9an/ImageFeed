@@ -7,6 +7,11 @@
 
 import Foundation
 
+public protocol ProfileServiceProtocol {
+    var profile: Profile? { get }
+    func fetchProfile(_ token: String, completion: @escaping (Result<Profile, Error>) -> Void)
+}
+
 enum ProfileServiceError: Error {
     case invalidRequest
 }
@@ -18,14 +23,14 @@ struct ProfileResult: Decodable {
     let bio: String?
 }
 
-struct Profile {
+public struct Profile {
     let username: String
     let name: String
     let loginName: String
     let bio: String
 }
 
-final class ProfileService {
+final class ProfileService: ProfileServiceProtocol {
     static let shared = ProfileService()
     private init() { }
     
@@ -34,9 +39,10 @@ final class ProfileService {
     private var task: URLSessionTask?
     private var lastToken: String?
     private let session = URLSession.shared
+    private let authConfiguration = AuthConfiguration.standard
     
     func makeProfileInfoRequest(token: String) -> URLRequest? {
-        guard var components = URLComponents(string: "\(DefaultBaseURL)") else {
+        guard var components = URLComponents(string: "\(authConfiguration.defaultBaseURL)") else {
             assertionFailure("Failed to create URL")
             return nil
         }

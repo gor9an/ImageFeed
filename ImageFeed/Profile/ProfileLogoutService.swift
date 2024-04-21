@@ -17,12 +17,14 @@ final class ProfileLogoutService {
     private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
     private let imagesListService = ImagesListService.shared
+    private let authConfiguration = AuthConfiguration.standard
     
     func logout() {
         cleanCookies()
         profileService.cleanProfile()
         profileImageService.clearAvatarURL()
         imagesListService.clearPhotos()
+        cleanKeychain()
     }
     
     private func cleanCookies() {
@@ -37,6 +39,8 @@ final class ProfileLogoutService {
                     WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
                 }
             })
-        KeychainWrapper.standard.remove(forKey: KeychainWrapper.Key(rawValue: keyChainKey))
+    }
+    func cleanKeychain() {
+        KeychainWrapper.standard.remove(forKey: KeychainWrapper.Key(rawValue: authConfiguration.keyChainKey))
     }
 }

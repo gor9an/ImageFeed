@@ -12,7 +12,7 @@ protocol ImagesListCellDelegate: AnyObject {
     func imageListCellDidTapLike(_ cell: ImagesListCell)
 }
 
-final class ImagesListCell: UITableViewCell {
+public final class ImagesListCell: UITableViewCell {
     //MARK: - IBOutlets
     @IBOutlet weak var cardImage: UIImageView!
     @IBOutlet private weak var dateTitle: UILabel!
@@ -28,7 +28,7 @@ final class ImagesListCell: UITableViewCell {
 
 //MARK: - ImagesListCell extension
 extension ImagesListCell {
-    override func prepareForReuse() {
+    public override func prepareForReuse() {
         super.prepareForReuse()
         cardImage.kf.cancelDownloadTask()
     }
